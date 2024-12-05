@@ -22,15 +22,16 @@ public class UserModel {
 
     public boolean saveUser(UserDTO userDTO) throws SQLException {
         return Util.CrudUtil.execute(
-                "INSERT INTO user(user_id, username, password, role) VALUES (?,?,?,?)",
+                "INSERT INTO user(user_id, username, password,email, role) VALUES (?,?,?,?,?)",
                 userDTO.getUser_id(),
                 userDTO.getUsername(),
                 userDTO.getPassword(),
+                userDTO.getEmail(),
                 userDTO.getRole()
         );
     }
 
-    public ArrayList<UserDTO> getAllUsers() throws SQLException {
+    public static ArrayList<UserDTO> getAllUsers() throws SQLException {
         ResultSet rst = Util.CrudUtil.execute("SELECT * FROM user");
 
         ArrayList<UserDTO> userDTOS = new ArrayList<>();
@@ -40,7 +41,8 @@ public class UserModel {
                     rst.getString(1),
                     rst.getString(2),
                     rst.getString(3),
-                    rst.getString(4)
+                    rst.getString(4),
+                    rst.getString(5)
             );
             userDTOS.add(userDTO);
         }
@@ -49,9 +51,10 @@ public class UserModel {
 
     public boolean updateUser(UserDTO userDTO) throws SQLException {
         return Util.CrudUtil.execute(
-                "UPDATE user SET username=?, password=?, role=? WHERE user_id=?",
+                "UPDATE user SET username=?, password=?, email=? , role=? WHERE user_id=?",
                 userDTO.getUsername(),
                 userDTO.getPassword(),
+                userDTO.getEmail(),
                 userDTO.getRole(),
                 userDTO.getUser_id()
         );
@@ -81,7 +84,8 @@ public class UserModel {
                     rst.getString(1),
                     rst.getString(2),
                     rst.getString(3),
-                    rst.getString(4)
+                    rst.getString(4),
+                    rst.getString(5)
             );
         }
         return null;

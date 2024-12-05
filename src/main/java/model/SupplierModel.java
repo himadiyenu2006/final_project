@@ -1,6 +1,7 @@
 package model;
 
 import lk.ijse.gdse.pizzahubsystem.dto.SupplierDTO;
+import lk.ijse.gdse.pizzahubsystem.dto.tm.SupplierTM;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -53,7 +54,7 @@ public class SupplierModel {
         return supplierDTOS;
     }
 
-    public boolean updateSupplier(SupplierDTO supplierDTO) throws SQLException {
+    public boolean updateSupplier(SupplierTM supplierDTO) throws SQLException {
         return Util.CrudUtil.execute(
                 "update supplier set Supplier_name=?,contact_name=?, contact_number=?, address=? where supplier_id=?",
                 supplierDTO.getSupplier_name(),

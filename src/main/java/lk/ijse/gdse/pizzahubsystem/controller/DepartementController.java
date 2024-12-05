@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
@@ -33,12 +34,12 @@ public class DepartementController implements Initializable {
     private TableView<DepartmentTM> tblDepartment;
 
     @FXML
-    private TableColumn<DepartmentTM, String>  deptNameColumn, managerNameColumn;
+    private TableColumn<DepartmentTM, String> deptNameColumn, managerNameColumn;
     @FXML
     private TableColumn<DepartmentTM, String> deptDescriptionColumn;
 
     @FXML
-    private TableColumn<DepartmentTM, Integer> deptIdColumn,employeeCountColumn;
+    private TableColumn<DepartmentTM, Integer> deptIdColumn, employeeCountColumn;
 
     @FXML
     private TextField departmentIdField, departmentNameField, managerNameField, numEmployeesField, descriptionArea;
@@ -46,7 +47,7 @@ public class DepartementController implements Initializable {
     @FXML
     private Button save_btn, delete_btn, cancel_btn;
 
-    private static final Pattern ID_PATTERN = Pattern.compile("^[A-Z0-9]{3,10}$");
+    private static final Pattern ID_PATTERN = Pattern.compile("^[A-Za-z0-9]{3,10}$");
     private static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-z ]{3,30}$");
     private static final Pattern EMPLOYEE_COUNT_PATTERN = Pattern.compile("^\\d+$");
     private static final Pattern DESCRIPTION_PATTERN = Pattern.compile("^[\\w\\s,.-]{5,100}$");
@@ -56,26 +57,25 @@ public class DepartementController implements Initializable {
     public DepartementController() throws IOException {
     }
 
-    @Override
+//    @Override
+//    public void initialize(URL url, ResourceBundle resourceBundle) {
+//       /* assert deptDescriptionColumn != null : "fx:id=\"deptDescriptionColumn\" was not injected: check your FXML file.";
+//        deptDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+//        initializeTable();
+//        try {
+//            refreshPage();
+//        } catch (SQLException e) {
+//            showAlert("Error", "Failed to load department data: " + e.getMessage());
+//        }*/
+//    }
+
+
     public void initialize(URL url, ResourceBundle resourceBundle) {
-       /* assert deptDescriptionColumn != null : "fx:id=\"deptDescriptionColumn\" was not injected: check your FXML file.";
-        deptDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
-        initializeTable();
-        try {
-            refreshPage();
-        } catch (SQLException e) {
-            showAlert("Error", "Failed to load department data: " + e.getMessage());
-        }*/
-    }
-
-
-
-    private void initializeTable() {
-        deptIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        deptNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        managerNameColumn.setCellValueFactory(new PropertyValueFactory<>("manager"));
-        deptDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
-        employeeCountColumn.setCellValueFactory(new PropertyValueFactory<>("employeeCount"));
+        deptIdColumn.setCellValueFactory(new PropertyValueFactory<>("department_id"));
+        deptNameColumn.setCellValueFactory(new PropertyValueFactory<>("department_name"));
+        managerNameColumn.setCellValueFactory(new PropertyValueFactory<>("manager_name"));
+        employeeCountColumn.setCellValueFactory(new PropertyValueFactory<>("number_of_employees"));
+        deptdescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
     }
 
 
@@ -83,12 +83,11 @@ public class DepartementController implements Initializable {
 //    Parent root = loader.load();
 
 
-    @FXML
-    private void initialize() {
-        assert deptDescriptionColumn != null : "fx:id=\"deptDescriptionColumn\" was not injected: check your FXML file.";
-        deptDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
-    }
+    public void initialize() throws SQLException {
+        initialize(null, null);
+        loadTableData();
 
+    }
 
     private void refreshPage() throws SQLException {
         loadNextDepartmentId();
@@ -133,7 +132,6 @@ public class DepartementController implements Initializable {
     }
 
 
-
     private boolean validateAllFields() {
         if (validateDepartmentId()) {
             showAlert("Validation Error", "Invalid Department ID format.");
@@ -157,6 +155,7 @@ public class DepartementController implements Initializable {
         }
         return true;
     }
+
 
     private boolean validateDepartmentId() {
         return !ID_PATTERN.matcher(departmentIdField.getText()).matches();
@@ -190,8 +189,8 @@ public class DepartementController implements Initializable {
     }
 
     public void cancleOnAction(ActionEvent actionEvent) {
-        clearFields(); // Clears all input fields
-        resetButtonsAndFields(); // Resets button states
+        clearFields();
+        resetButtonsAndFields();
     }
 
     public void saveOnAction(ActionEvent actionEvent) {
@@ -201,7 +200,7 @@ public class DepartementController implements Initializable {
                         departmentIdField.getText(),
                         departmentNameField.getText(),
                         managerNameField.getText(),
-                        numEmployeesField.getText(),
+                        Integer.parseInt(numEmployeesField.getText()),
                         descriptionArea.getText()
                 );
 
@@ -217,59 +216,112 @@ public class DepartementController implements Initializable {
         }
     }
 
-    public void deleteOnAction(ActionEvent actionEvent) {
-        if (departmentIdField.getText().isEmpty()) {
-            showAlert("Validation Error", "Please enter a Department ID to delete.");
-            return;
-        }
+//    public void deleteOnAction(ActionEvent actionEvent) {
+//        if (departmentIdField.getText().isEmpty()) {
+//            showAlert("Validation Error", "Please enter a Department ID to delete.");
+//            return;
+//        }
+//
+//        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION,
+//                "Are you sure you want to delete this department?", ButtonType.YES, ButtonType.NO);
+//        confirmationAlert.setTitle("Delete Confirmation");
+//        confirmationAlert.showAndWait();
+//
+//        if (confirmationAlert.getResult() == ButtonType.YES) {
+//            try {
+//                if (departmentModel.delete(departmentIdField.getText())) {
+//                    showAlert("Success", "Department deleted successfully.");
+//                    refreshPage();
+//                } else {
+//                    showAlert("Error", "No department found with the given ID.");
+//                }
+//            } catch (SQLException e) {
+//                showAlert("Error", "Database error: " + e.getMessage());
+//            }
+//        }
+//    }
 
-        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION,
-                "Are you sure you want to delete this department?", ButtonType.YES, ButtonType.NO);
-        confirmationAlert.setTitle("Delete Confirmation");
-        confirmationAlert.showAndWait();
+    public void deleteOnAction(ActionEvent actionEvent) throws SQLException {
+        String departmentIdFieldText = departmentIdField.getText();
 
-        if (confirmationAlert.getResult() == ButtonType.YES) {
-            try {
-                if (departmentModel.delete(departmentIdField.getText())) {
-                    showAlert("Success", "Department deleted successfully.");
-                    refreshPage();
-                } else {
-                    showAlert("Error", "No department found with the given ID.");
-                }
-            } catch (SQLException e) {
-                showAlert("Error", "Database error: " + e.getMessage());
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure?", ButtonType.YES, ButtonType.NO);
+        Optional<ButtonType> optionalButtonType = alert.showAndWait();
+
+        if (optionalButtonType.isPresent() && optionalButtonType.get() == ButtonType.YES) {
+
+            boolean isDeleted = departmentModel.deleteDepartment(departmentIdFieldText);
+            if (isDeleted) {
+                refreshPage();
+                new Alert(Alert.AlertType.INFORMATION, "Customer deleted...!").show();
+            } else {
+                new Alert(Alert.AlertType.ERROR, "Fail to delete customer...!").show();
             }
         }
+
     }
 
-    public void handledescription(ActionEvent actionEvent) {
-        if (validateDescription()) {
-            showAlert("Validation Error", "Invalid Description format. Please check and try again.");
+    @FXML
+    void btnUpdateOnAction(ActionEvent event) throws SQLException {
+        String departmentIdFieldText = departmentIdField.getText();
+        String nameFieldText = departmentNameField.getText();
+        String managerNameFieldText = managerNameField.getText();
+        Integer numEmployeesFieldText = Integer.valueOf(numEmployeesField.getText());
+        String descriptionAreaText = descriptionArea.getText();
+
+        DepartmentDTO departmentDTO = new DepartmentDTO(departmentIdFieldText, nameFieldText, managerNameFieldText, numEmployeesFieldText, descriptionAreaText);
+
+        boolean isUpdated = departmentModel.updateDepartment(departmentDTO);
+        if (isUpdated) {
+            refreshPage();
+            new Alert(Alert.AlertType.INFORMATION, "Customer updated...!").show();
+        } else {
+            new Alert(Alert.AlertType.ERROR, "Fail to update customer...!").show();
         }
+
     }
 
-    public void handleNumberOfEmployees(ActionEvent actionEvent) {
-        if (validateEmployeeCount()) {
-            showAlert("Validation Error", "Invalid Employee Count. Please enter a valid number.");
-        }
-    }
-
-    public void handlemanagername(ActionEvent actionEvent) {
-        if (validateManagerName()) {
-            showAlert("Validation Error", "Invalid Manager Name format. Please check and try again.");
+    public void handledepartmentId(ActionEvent actionEvent) {
+        if (validateDepartmentId()) {
+            showAlert("Validation Error", "Invalid Department ID format.");
+            departmentIdField.requestFocus();
+        } else {
+            departmentNameField.requestFocus();
         }
     }
 
     public void handleDepartmentName(ActionEvent actionEvent) {
         if (validateDepartmentName()) {
-            showAlert("Validation Error", "Invalid Department Name format. Please check and try again.");
+            showAlert("Validation Error", "Invalid Department Name format.");
+            departmentNameField.requestFocus();
+        } else {
+            managerNameField.requestFocus();
         }
     }
 
-    public void handledepartmentId(ActionEvent actionEvent) {
-        if (validateDepartmentId()) {
-            showAlert("Validation Error", "Invalid Department ID format. Please check and try again.");
+    public void handlemanagername(ActionEvent actionEvent) {
+        if (validateManagerName()) {
+            showAlert("Validation Error", "Invalid Manager Name format.");
+            managerNameField.requestFocus();
+        } else {
+            numEmployeesField.requestFocus();
         }
     }
 
+    public void handleNumberOfEmployees(ActionEvent actionEvent) {
+        if (validateEmployeeCount()) {
+            showAlert("Validation Error", "Invalid Employee Count format.");
+            numEmployeesField.requestFocus();
+        } else {
+            descriptionArea.requestFocus();
+        }
+    }
+
+    public void handledescription(ActionEvent actionEvent) {
+        if (validateDescription()) {
+            showAlert("Validation Error", "Invalid Description format.");
+            descriptionArea.requestFocus();
+        } else {
+            save_btn.requestFocus();
+        }
+    }
 }

@@ -5,17 +5,44 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import lk.ijse.gdse.pizzahubsystem.dto.ManageDTO;
+import lk.ijse.gdse.pizzahubsystem.dto.tm.ManageTM;
 import model.ManageModel;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class ManageController {
 
-    public ImageView imageManageId;
+    public TextField manageIdField;
+
+    public TextField inventoryIdField;
+
+    public TextField supplierIdField;
+
+    public TextField orderIdField;
+
+    public TextField quantityField;
+
+    public TextField supplierNameField;
+
+    public TextField supplierContactNameField;
 
     public Button cancelable;
+
+    public Button btnSave;
+
+    public TableColumn manageIdCol;
+
+    public TableColumn inventoryIdCol;
+
+    public TableColumn supplierIdCol;
+
+    public TableColumn orderIdCol;
 
     public TableColumn supplierContactNameCol;
 
@@ -23,92 +50,159 @@ public class ManageController {
 
     public TableColumn quantityCol;
 
-    public TableColumn orderIdCol;
+    public ImageView imageManageId;
 
-    public TextField supplierContactNameField;
+    @FXML private TextField txtManageId;
+    @FXML private TextField txtInventoryId;
+    @FXML private TextField txtOrderId;
+    @FXML private TextField txtQuantity;
+    @FXML private TextField txtSupplierId;
+    @FXML private TextField txtSupplierName;
+    @FXML private TextField txtSupplierContactName;
 
-    public TextField supplierNameField;
+    @FXML private TableView<ManageDTO> tblManage;
+    @FXML private TableColumn<ManageDTO, String> colManageId;
+    @FXML private TableColumn<ManageDTO, String> colInventoryId;
+    @FXML private TableColumn<ManageDTO, String> colOrderId;
+    @FXML private TableColumn<ManageDTO, Integer> colQuantity;
+    @FXML private TableColumn<ManageDTO, String> colSupplierId;
+    @FXML private TableColumn<ManageDTO, String> colSupplierName;
+    @FXML private TableColumn<ManageDTO, String> colSupplierContactName;
 
-    public TextField quantityField;
+    private ManageModel manageModel;
+    private ObservableList<ManageDTO> getAllManageRecords;
 
-    public TextField orderIdField;
-
-    public TextField supplierIdField;
-
-    public TextField inventoryIdField;
-
-    public TextField manageIdField;
-    @FXML
-    private TableView<ManageDTO> tblManage;
-
-    @FXML
-    private TextField txtManageId, txtInventoryId, txtSupplierId, txtOrderId, txtQuantity, txtSupplierName, txtSupplierContact;
-
-    @FXML
-    private Button btnSave, btnCancel;
-
-    private final ManageModel manageModel = new ManageModel();
-
-    public ManageController() throws SQLException {
-    }
-
-    @FXML
-    private void initialize() {
+    public ManageController() {
         try {
-            loadTableData();
+            manageModel = new ManageModel();
         } catch (SQLException e) {
-            showError("Error loading data: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    private void loadTableData() throws SQLException {
-        ObservableList<ManageDTO> manageList = FXCollections.observableArrayList(manageModel.getAllManageRecords());
-        tblManage.setItems(manageList);
+    @FXML
+    public void initialize() {
+        manageIdCol.setCellValueFactory(new PropertyValueFactory<>("manageId"));
+        inventoryIdCol.setCellValueFactory(new PropertyValueFactory<>("inventoryId"));
+        supplierIdCol.setCellValueFactory(new PropertyValueFactory<>("supplierId"));
+        orderIdCol.setCellValueFactory(new PropertyValueFactory<>("orderId"));
+        quantityCol.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+        supplierNameCol.setCellValueFactory(new PropertyValueFactory<>("supplierName"));
+        supplierContactNameCol.setCellValueFactory(new PropertyValueFactory<>("supplierContactName"));
+
+        loadManageRecords();
     }
 
-    @FXML
-    private void btnSaveOnAction(ActionEvent event) {
+    private void loadManageRecords() {
         try {
-            ManageDTO manageDTO = new ManageDTO(
-                     txtManageId.getText(),
-                     txtInventoryId.getText(),
-                     txtSupplierId.getText(),
-                     txtOrderId.getText(),
-                     Integer.parseInt(txtQuantity.getText()),
-                     txtSupplierName.getText(),
-                     txtSupplierContact.getText()
-            );
-            if (manageModel.saveManage(manageDTO)) {
-                showInfo("Saved successfully!");
-                loadTableData();
-            } else {
-                showError("Save failed!");
-            }
-        } catch (Exception e) {
-            showError("Error: " + e.getMessage());
+            ArrayList<ManageDTO> manageList = manageModel.getAllManageRecords();
+            ObservableList<ManageDTO> manageObservableList = FXCollections.observableArrayList(manageList);
+            tblManage.setItems(manageObservableList);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load manage records", AlertType.ERROR);
         }
     }
 
     @FXML
-    private void btnCancelOnAction(ActionEvent event) {
-        clearFields();
+    public void handleSave(ActionEvent event) {
+        String manageId = txtManageId.getText();
+        String inventoryId = txtInventoryId.getText();
+        String orderId = txtOrderId.getText();
+        int quantity = Integer.parseInt(txtQuantity.getText());
+        String supplierId = txtSupplierId.getText();
+        String supplierName = txtSupplierName.getText();
+        String supplierContactName = txtSupplierContactName.getText();
+
+        ManageDTO manageDTO = new ManageDTO(manageId, inventoryId, supplierId, orderId, quantity, supplierName, supplierContactName);
+
+        try {
+            boolean isSaved = manageModel.saveManage(manageDTO);
+            if (isSaved) {
+                showAlert("Success", "Manage record saved successfully", AlertType.INFORMATION);
+                clearFields();
+                loadManageRecords();
+            } else {
+                showAlert("Error", "Failed to save manage record", AlertType.ERROR);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "Database error occurred", AlertType.ERROR);
+        }
     }
 
     private void clearFields() {
-        txtManageId.clear();
-        txtInventoryId.clear();
-        txtSupplierId.clear();
-        txtOrderId.clear();
-        txtQuantity.clear();
-        txtSupplierName.clear();
-        txtSupplierContact.clear();
+        manageIdField.clear();
+        inventoryIdField.clear();
+        supplierIdField.clear();
+        orderIdField.clear();
+        quantityField.clear();
+        supplierNameField.clear();
+        supplierContactNameField.clear();
     }
 
-    private void showError(String message) {
-        new Alert(Alert.AlertType.ERROR, message).show();
+    private void showAlert(String title, String message, AlertType alertType) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
-    private void showInfo(String message) {
-        new Alert(Alert.AlertType.INFORMATION, message).show();
+    @FXML
+    public void btnCancleOnAction(ActionEvent actionEvent) {
+        clearFields();
     }
+
+    public void btnSaveOnAction(ActionEvent actionEvent) throws SQLException {
+        String manageIdFieldText = manageIdField.getText();
+        String inventoryIdFieldText = inventoryIdField.getText();
+        String supplierIdFieldText = supplierIdField.getText();
+        String orderIdFieldText = orderIdField.getText();
+        int quantity = Integer.parseInt(quantityField.getText());
+        String supplierNameFieldText = supplierNameField.getText();
+        String supplierContactNameFieldText = supplierContactNameField.getText();
+
+        ManageDTO manageDTO = new ManageDTO(manageIdFieldText, inventoryIdFieldText, supplierIdFieldText, orderIdFieldText, quantity, supplierNameFieldText, supplierContactNameFieldText);
+
+        boolean isSaved = manageModel.saveManage(manageDTO);
+        if (isSaved) {
+            refreshPage();
+            new Alert(Alert.AlertType.INFORMATION, "Manage saved...!").show();
+        } else {
+            new Alert(Alert.AlertType.ERROR, "Failed to save Manage...!").show();
+        }
+    }
+
+    private void refreshPage() throws SQLException {
+        loadTableData();
+        btnSave.setDisable(false);
+        cancelable.setDisable(false);
+
+        manageIdField.setText("");
+        inventoryIdField.setText("");
+        supplierIdField.setText("");
+        orderIdField.setText("");
+        quantityField.setText("");
+        supplierNameField.setText("");
+        supplierContactNameField.setText("");
+    }
+
+    private void loadTableData() throws SQLException {
+        ObservableList<ManageTM> addManage = FXCollections.observableArrayList();
+        ArrayList<ManageDTO> list = manageModel.getAllManageRecords();
+
+        for (ManageDTO manageDTO : list) {
+            addManage.add(new ManageTM(
+                    manageDTO.getManageId(),
+                    manageDTO.getInventoryId(),
+                    manageDTO.getSupplierId(),
+                    manageDTO.getOrderId(),
+                    manageDTO.getQuantity(),
+                    manageDTO.getSupplierName(),
+                    manageDTO.getSupplierContactName()
+            ));
+        }
+        //tblManage.setItems(addManage);
+    }
+
 }

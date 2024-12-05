@@ -1,179 +1,139 @@
 package lk.ijse.gdse.pizzahubsystem.controller;
 
-import javafx.event.ActionEvent;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
 import lk.ijse.gdse.pizzahubsystem.dto.SalaryDTO;
 import lk.ijse.gdse.pizzahubsystem.dto.tm.SalaryTM;
 import model.SalaryModel;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 public class SalaryController {
 
-
-
-    public Label baseSalary;
-    public TextField baseSalaryField;
+    @FXML
+    private Label baseSalary;
 
     @FXML
-    private TextField deductionsField;
-
-    @FXML
-    private TextField employeeIdField;
-
-    @FXML
-    private TextField netSalaryField;
-
-    @FXML
-    private TextField salaryIdField;
-
-    @FXML
-    private TextField salary_date;
-
-    @FXML
-    private TextField bonusField;
+    private TextField baseSalaryField, deductionsField, employeeIdField, netSalaryField, salaryIdField, salary_date, bonusField;
 
     @FXML
     private ImageView salarymanagementimage;
 
     @FXML
-    private TableView<?> tblsalaryid;
+    private TableView<SalaryTM> tblsalaryid;
 
     @FXML
-    private TableColumn<?, ?> colEmp_id;
+    private TableColumn<SalaryTM, String> colSalaryId, colEmp_id, colempbasesalary, colempbonus, colempdeductions, colempnetsalary, colSalaryDate;
 
     @FXML
-    private TableColumn<SalaryTM, String> colSalaryDate;
-
-    @FXML
-    private TableColumn<SalaryTM, String> colSalaryId;
-
-    @FXML
-    private TableColumn<SalaryTM, String> colempbasesalary;
-
-    @FXML
-    private TableColumn<SalaryTM, String> colempbonus;
-
-    @FXML
-    private TableColumn<SalaryTM, String> colempdeductions;
-
-    @FXML
-    private TableColumn<SalaryTM, String> colempname;
-
-    @FXML
-    private TableColumn<SalaryTM, String> colempnetsalary;
-
-/*
-    public SalaryController(DBConnection databaseConnection) throws IOException {
-        this.connection = databaseConnection.getConnection();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/path/to/SalaryView.fxml"));
-        SalaryController controller = null; // Pass in your DBConnection instance here
+    private void initialize() {
+        setupTableColumns();
         try {
-            controller = new SalaryController(new DBConnection());
+            loadTableData();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            new Alert(Alert.AlertType.ERROR, "Failed to load salary data: " + e.getMessage()).show();
         }
-        loader.setController(controller);
-        Parent root = loader.load();
     }
-*/
+
+    private void setupTableColumns() {
+        colSalaryId.setCellValueFactory(new PropertyValueFactory<>("salary_id"));
+        colEmp_id.setCellValueFactory(new PropertyValueFactory<>("employee_id"));
+        colempbasesalary.setCellValueFactory(new PropertyValueFactory<>("basic_salary"));
+        colempbonus.setCellValueFactory(new PropertyValueFactory<>("bonus"));
+        colempdeductions.setCellValueFactory(new PropertyValueFactory<>("deductions"));
+        colempnetsalary.setCellValueFactory(new PropertyValueFactory<>("net_salary"));
+        colSalaryDate.setCellValueFactory(new PropertyValueFactory<>("salary_date"));
+    }
+
+    private void loadTableData() throws SQLException {
+        ObservableList<SalaryTM> salaryList = FXCollections.observableArrayList(SalaryModel.getAllSalary());
+        tblsalaryid.setItems(salaryList);
+    }
+
+    @FXML
+    private void refreshPage() {
+        try {
+            loadTableData();
+            resetFields();
+        } catch (SQLException e) {
+            new Alert(Alert.AlertType.ERROR, "Failed to refresh page: " + e.getMessage()).show();
+        }
+    }
+
+    private void resetFields() {
+        salaryIdField.clear();
+        employeeIdField.clear();
+        baseSalaryField.clear();
+        bonusField.clear();
+        deductionsField.clear();
+        netSalaryField.clear();
+        salary_date.clear();
+    }
 
     @FXML
     private void calculateNetSalary() {
-            try {
-                double baseSalary = Double.parseDouble(baseSalaryField.getText());
-                double bonus = Double.parseDouble(bonusField.getText());
-                double deductions = Double.parseDouble(deductionsField.getText());
-                double netSalary = baseSalary + bonus - deductions;
-                netSalaryField.setText(String.valueOf(netSalary));
-            } catch (NumberFormatException e) {
-                new Alert(AlertType.ERROR,"Invalid input Please enter valid numbers for base salary, bonus, and deductions.").show();
-            }
-        }
-
-
-    @FXML
-    private void saveSalary() throws SQLException {
-        String colSalaryId = salaryIdField.getText();
-        String colEmp_id = employeeIdField.getText();
-        double baseSalaryFieldText = Double.parseDouble(baseSalary.getText());
-        double bonusField1 = Double.parseDouble(bonusField.getText());
-        double deductionsField1 = Double.parseDouble(deductionsField.getText());
-        double netSalaryFieldText = Double.parseDouble(netSalaryField.getText());
-        String date = salary_date.getText();
-
-
-        SalaryDTO salaryDTO = new SalaryDTO(colSalaryId, colEmp_id, baseSalaryFieldText, bonusField1, deductionsField1, netSalaryFieldText, date);
-        boolean issaved = SalaryModel.save(salaryDTO);
-        if (issaved) {
-            new Alert(AlertType.INFORMATION, "Salary saved successfully!").show();
-        } else {
-            new Alert(AlertType.ERROR, "Failed to save Salary.").show();
+        try {
+            double baseSalary = Double.parseDouble(baseSalaryField.getText());
+            double bonus = Double.parseDouble(bonusField.getText());
+            double deductions = Double.parseDouble(deductionsField.getText());
+            double netSalary = baseSalary + bonus - deductions;
+            netSalaryField.setText(String.format("%.2f", netSalary));
+        } catch (NumberFormatException e) {
+            new Alert(Alert.AlertType.ERROR, "Invalid input. Please enter valid numbers for salary, bonus, and deductions.").show();
         }
     }
-//    private boolean isValidInput() {
-//        if (employeeIdField.getText().isEmpty() || employeeNameField.getText().isEmpty()) {
-//            showAlert("Missing Information", "Employee ID and Name are required.");
-//            return false;
-//        }
-//
-//        if (baseSalaryField.getText().isEmpty() || bonusField.getText().isEmpty() || deductionsField.getText().isEmpty()) {
-//            showAlert("Missing Information", "Base Salary, Bonus, and Deductions must be provided.");
-//            return false;
-//        }
-//
-//        try {
-//            Double.parseDouble(baseSalaryField.getText());
-//            Double.parseDouble(bonusField.getText());
-//            Double.parseDouble(deductionsField.getText());
-//        } catch (NumberFormatException e) {
-//            showAlert("Invalid input", "Base Salary, Bonus, and Deductions must be valid numbers.");
-//            return false;
-//        }
-//
-//        return true;
-//    }
-//
-//    private void showAlert(String title, String message) {
-//        Alert alert = new Alert(AlertType.WARNING);
-//        alert.setTitle(title);
-//        alert.setHeaderText(null);
-//        alert.setContentText(message);
-//        alert.showAndWait();
-//    }
-
-//    private void startTransaction() {
-//        try {
-//            connection.setAutoCommit(false);
-//        } catch (SQLException e) {
-//            showAlert("Error", "Failed to start transaction: " + e.getMessage());
-//        }
-//    }
-//
-//    private void commitTransaction() {
-//        try {
-//            connection.commit();
-//            connection.setAutoCommit(true);
-//        } catch (SQLException e) {
-//            showAlert("Error", "Failed to commit transaction: " + e.getMessage());
-//        }
-//    }
-//
-//    private void rollbackTransaction() {
-//        try {
-//            connection.rollback();
-//            connection.setAutoCommit(true);
-//        } catch (SQLException e) {
-//            showAlert("Error", "Failed to rollback transaction: " + e.getMessage());
-//        }
-//    }
 
     @FXML
-    void calculateNetSalary(ActionEvent event) {
+    private void findByEmployeeId() {
+    }
 
+    @FXML
+    private void saveSalary() {
+        try {
+            String salaryId = salaryIdField.getText();
+            String employeeId = employeeIdField.getText();
+            double baseSalary = Double.parseDouble(baseSalaryField.getText());
+            double bonus = Double.parseDouble(bonusField.getText());
+            double deductions = Double.parseDouble(deductionsField.getText());
+            double netSalary = Double.parseDouble(netSalaryField.getText());
+            String date = salary_date.getText();
+
+            SalaryDTO salaryDTO = new SalaryDTO(salaryId, employeeId, baseSalary, bonus, deductions, netSalary, date);
+            boolean isSaved = SalaryModel.save(salaryDTO);
+
+            if (isSaved) {
+                new Alert(Alert.AlertType.INFORMATION, "Salary saved successfully!").show();
+                refreshPage();
+            } else {
+                new Alert(Alert.AlertType.ERROR, "Failed to save salary.").show();
+            }
+        } catch (NumberFormatException e) {
+            new Alert(Alert.AlertType.ERROR, "Invalid input. Please ensure all fields are filled with valid data.").show();
+        } catch (SQLException e) {
+            new Alert(Alert.AlertType.ERROR, "Database error: " + e.getMessage()).show();
+        }
+    }
+
+    public static void showSalaryView() throws IOException {
+        FXMLLoader loader = new FXMLLoader(SalaryController.class.getResource("/path/to/SalaryView.fxml"));
+        Parent root = loader.load();
+        Stage stage = new Stage();
+        stage.setScene(new Scene(root));
+        stage.setTitle("Salary Management");
+        stage.show();
     }
 }
+

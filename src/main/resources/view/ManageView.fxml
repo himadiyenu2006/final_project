@@ -89,7 +89,7 @@
             <TextField fx:id="supplierContactNameField" prefHeight="26.0" prefWidth="106.0" promptText="Supplier Contact_name" />
          </children>
       </HBox>
-      <TableView fx:id="tbl Manage" layoutX="-3.0" layoutY="425.0" prefHeight="378.0" prefWidth="1008.0">
+      <TableView fx:id="tblManage" layoutX="-3.0" layoutY="425.0" prefHeight="378.0" prefWidth="1008.0">
         <columns>
           <TableColumn fx:id="manageIdCol" prefWidth="109.6000030040741" text="Manage ID" />
           <TableColumn fx:id="inventoryIdCol" prefWidth="109.5999755859375" text="Inventory ID" />

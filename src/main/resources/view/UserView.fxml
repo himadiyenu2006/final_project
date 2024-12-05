@@ -150,7 +150,7 @@
 
             <TableView fx:id="tblUser" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                <columns>
-                  <TableColumn fx:id="colCustomerId" prefWidth="150.0" text="Customer Id" />
+                  <TableColumn fx:id="colUserId" prefWidth="150.0" text="User Id" />
                   <TableColumn fx:id="colName" prefWidth="150.0" text="Name" />
                   <TableColumn fx:id="colPassword" prefWidth="150.0" text="Password" />
                   <TableColumn fx:id="colEmail" prefWidth="200.0" text="Email" />

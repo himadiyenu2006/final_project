@@ -12,6 +12,6 @@ public class DepartmentTM {
     private String department_id;
     private String department_name;
     private String manager_name;
-    private Integer number_of_employees;
+    private int number_of_employees;
     private String description;
 }

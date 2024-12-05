@@ -1,342 +1,321 @@
 package lk.ijse.gdse.pizzahubsystem.controller;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
 import javafx.scene.control.*;
+import lk.ijse.gdse.pizzahubsystem.dto.SupplierDTO;
 import lk.ijse.gdse.pizzahubsystem.dto.tm.SupplierTM;
+import model.SupplierModel;
+
+import java.sql.SQLException;
 
 public class SupplierController {
 
-    @FXML
-    private Label SupplierContactName;
+    public TableColumn colAdress;
+
+    public TableColumn colContactNumber;
+
+    public TableColumn colContactName;
+
+    public TableColumn colName;
+
+    public TableColumn colSupplierID;
+
+    public TableView tblsupplier;
+
+    public Button btnERefresh;
+
+    public Button btnAdd;
+
+    public TextField txtaddress;
+
+    public Label sup_addId;
+
+    public TextField txtcontactNumber;
+
+    public Label SupplierContactNumber;
+
+    public Label SupplierContactName;
+
+    public TextField txtName;
+
+    public Label SupplierName;
+
+    public Label lblUserId;
+
+    public Label supplierId;
 
     @FXML
-    private Label SupplierContactNumber;
-
+    private TextField txtSupplierId;
     @FXML
-    private Label SupplierName;
-
+    private TextField txtSupplierName;
     @FXML
-    private Button btnAdd;
-
+    private TextField txtContactName;
     @FXML
-    private Button btnDelete;
-
+    private TextField txtContactNumber;
     @FXML
-    private Button btnERefresh;
+    private TextField txtAddress;
+    @FXML
+    private TableView<SupplierTM> tblSupplier;
 
     @FXML
     private Button btnSave;
-
     @FXML
     private Button btnUpdate;
+    @FXML
+    private Button btnDelete;
+
+    private SupplierModel supplierModel = new SupplierModel();
 
     @FXML
-    private TableColumn<SupplierTM, String> colAdress;
+    public void initialize() {
+        try {
+            loadSupplierTableData();
+        } catch (SQLException e) {
+            showError("Error", "Failed to load supplier data.");
+        }
+    }
+
+    private void loadSupplierTableData() throws SQLException {
+        ObservableList<SupplierDTO> suppliers = FXCollections.observableArrayList(supplierModel.getAllSuppliers());
+
+        ObservableList<SupplierTM> supplierTMs = FXCollections.observableArrayList();
+        for (SupplierDTO supplierDTO : suppliers) {
+            SupplierTM supplierTM = new SupplierTM(
+                    supplierDTO.getSupplier_id(),
+                    supplierDTO.getSupplier_name(),
+                    supplierDTO.getContact_name(),
+                    supplierDTO.getContact_number(),
+                    supplierDTO.getAddress()
+            );
+            supplierTMs.add(supplierTM);
+        }
+
+        tblsupplier.setItems(supplierTMs);
+    }
 
     @FXML
-    private TableColumn<SupplierTM, String> colContactName;
+    public void saveSupplier() {
+        try {
+            String supplierId = supplierModel.getNextSupplierId();
+            String supplierName = txtSupplierName.getText();
+            String contactName = txtContactName.getText();
+            String contactNumber = txtContactNumber.getText();
+            String address = txtAddress.getText();
+
+            SupplierDTO supplierDTO = new SupplierDTO(supplierId, supplierName, contactName, contactNumber, address);
+
+            boolean isSaved = supplierModel.saveSupplier(supplierDTO);
+
+            if (isSaved) {
+                showInfo("Success", "Supplier saved successfully!");
+                loadSupplierTableData();
+            } else {
+                showError("Error", "Failed to save supplier.");
+            }
+        } catch (SQLException e) {
+            showError("Error", "Error saving supplier: " + e.getMessage());
+        }
+    }
+
 
     @FXML
-    private TableColumn<SupplierTM, ?> colContactNumber;
+    public void updateSupplier() {
+        try {
+            SupplierTM selectedSupplier = tblSupplier.getSelectionModel().getSelectedItem();
+
+            if (selectedSupplier == null) {
+                showError("Error", "Please select a supplier to update.");
+                return;
+            }
+
+            String supplierName = txtSupplierName.getText();
+            String contactName = txtContactName.getText();
+            String contactNumber = txtContactNumber.getText();
+            String address = txtAddress.getText();
+
+
+            selectedSupplier.setSupplier_name(supplierName);
+            selectedSupplier.setContact_name(contactName);
+            selectedSupplier.setContact_number(contactNumber);
+            selectedSupplier.setAddress(address);
+
+
+            boolean isUpdated = supplierModel.updateSupplier(selectedSupplier);
+
+            if (isUpdated) {
+                showInfo("Success", "Supplier updated successfully!");
+                loadSupplierTableData();
+            } else {
+                showError("Error", "Failed to update supplier.");
+            }
+        } catch (SQLException e) {
+            showError("Error", "Error updating supplier: " + e.getMessage());
+        }
+    }
+
 
     @FXML
-    private TableColumn<SupplierTM, ?> colName;
+    public void deleteSupplier() {
+        try {
+            SupplierTM selectedSupplier = tblSupplier.getSelectionModel().getSelectedItem();
+
+            if (selectedSupplier == null) {
+                showError("Error", "Please select a supplier to delete.");
+                return;
+            }
+
+            String supplierId = selectedSupplier.getSupplier_id();
+
+
+            boolean isDeleted = supplierModel.deleteSupplier(supplierId);
+
+            if (isDeleted) {
+                showInfo("Success", "Supplier deleted successfully!");
+                loadSupplierTableData();
+            } else {
+                showError("Error", "Failed to delete supplier.");
+            }
+        } catch (SQLException e) {
+            showError("Error", "Error deleting supplier: " + e.getMessage());
+        }
+    }
+
+
+    private void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 
     @FXML
-    private TableColumn<SupplierTM, ?> colSupplierID;
+    public void onTableSelect() {
+        SupplierTM selectedSupplier = tblSupplier.getSelectionModel().getSelectedItem();
+        if (selectedSupplier != null) {
+            txtSupplierId.setText(selectedSupplier.getSupplier_id());
+            txtSupplierName.setText(selectedSupplier.getSupplier_name());
+            txtContactName.setText(selectedSupplier.getContact_name());
+            txtContactNumber.setText(selectedSupplier.getContact_number());
+            txtAddress.setText(selectedSupplier.getAddress());
+        }
+    }
 
     @FXML
-    private Label lblUserId;
+    public void saveOnAction(ActionEvent actionEvent) {
+        try {
+            String supplierId = supplierModel.getNextSupplierId();
+            String supplierName = txtSupplierName.getText();
+            String contactName = txtContactName.getText();
+            String contactNumber = txtContactNumber.getText();
+            String address = txtAddress.getText();
 
-    @FXML
-    private Label sup_addId;
+            SupplierDTO supplierDTO = new SupplierDTO(supplierId, supplierName, contactName, contactNumber, address);
 
-    @FXML
-    private Label supplierId;
+            boolean isSaved = supplierModel.saveSupplier(supplierDTO);
 
-    @FXML
-    private TableView<?> tblsupplier;
+            if (isSaved) {
+                showInfo("Success", "Supplier saved successfully!");
+                loadSupplierTableData();
+                clearForm();
+            } else {
+                showError("Error", "Failed to save supplier.");
+            }
+        } catch (SQLException e) {
+            showError("Error", "Error saving supplier: " + e.getMessage());
+        }
+    }
 
-    @FXML
-    private TextField txtContactName;
-
-    @FXML
-    private TextField txtName;
-
-    @FXML
-    private TextField txtaddress;
-
-    @FXML
-    private TextField txtcontactNumber;
-
-    @FXML
-    void addOnAction(ActionEvent event) {
+    private void clearForm() {
 
     }
 
     @FXML
-    void deleteOnAction(ActionEvent event) {
+    public void updateOnAction(ActionEvent actionEvent) {
+        try {
+            SupplierTM selectedSupplier = tblSupplier.getSelectionModel().getSelectedItem();
 
+            if (selectedSupplier == null) {
+                showError("Error", "Please select a supplier to update.");
+                return;
+            }
+
+            String supplierName = txtSupplierName.getText();
+            String contactName = txtContactName.getText();
+            String contactNumber = txtContactNumber.getText();
+            String address = txtAddress.getText();
+
+            selectedSupplier.setSupplier_name(supplierName);
+            selectedSupplier.setContact_name(contactName);
+            selectedSupplier.setContact_number(contactNumber);
+            selectedSupplier.setAddress(address);
+
+            boolean isUpdated = supplierModel.updateSupplier(selectedSupplier);
+
+            if (isUpdated) {
+                showInfo("Success", "Supplier updated successfully!");
+                loadSupplierTableData();
+                clearForm();
+            } else {
+                showError("Error", "Failed to update supplier.");
+            }
+        } catch (SQLException e) {
+            showError("Error", "Error updating supplier: " + e.getMessage());
+        }
     }
 
     @FXML
-    void refreshOnAction(ActionEvent event) {
+    public void deleteOnAction(ActionEvent actionEvent) {
+        try {
+            SupplierTM selectedSupplier = tblSupplier.getSelectionModel().getSelectedItem();
 
+            if (selectedSupplier == null) {
+                showError("Error", "Please select a supplier to delete.");
+                return;
+            }
+
+            String supplierId = selectedSupplier.getSupplier_id();
+
+            boolean isDeleted = supplierModel.deleteSupplier(supplierId);
+
+            if (isDeleted) {
+                showInfo("Success", "Supplier deleted successfully!");
+                loadSupplierTableData();
+                clearForm();
+            } else {
+                showError("Error", "Failed to delete supplier.");
+            }
+        } catch (SQLException e) {
+            showError("Error", "Error deleting supplier: " + e.getMessage());
+        }
     }
 
     @FXML
-    void saveOnAction(ActionEvent event) {
-
+    public void addOnAction(ActionEvent actionEvent) throws SQLException {
+        clearForm();
+        String newSupplierId = supplierModel.getNextSupplierId();
+        txtSupplierId.setText(newSupplierId);
     }
 
     @FXML
-    void updateOnAction(ActionEvent event) {
+    public void refreshOnAction(ActionEvent actionEvent) {
+        try {
+            loadSupplierTableData();
+        } catch (SQLException e) {
+            showError("Error", "Error refreshing supplier data: " + e.getMessage());
+        }
     }
 
 }
-
-
-
-
-
-
-//package lk.ijse.gdse.pizzahubsystem.controller;
-//
-//import javafx.event.ActionEvent;
-//import javafx.fxml.FXML;
-//import javafx.scene.control.*;
-//import lk.ijse.gdse.pizzahubsystem.db.DBConnection;
-//import lk.ijse.gdse.pizzahubsystem.dto.tm.SupplierTM;
-//
-//import java.sql.Connection;
-//import java.sql.DriverManager;
-//import java.sql.PreparedStatement;
-//import java.sql.SQLException;
-//
-//public class SupplierController {
-//
-//    private final Connection connection;
-//    @FXML
-//    private TableView<SupplierTM> tblSupplier;
-//    @FXML
-//    private TableColumn<SupplierTM, String> colSupplierID;
-//    @FXML
-//    private TableColumn<SupplierTM, String> colName;
-//    @FXML
-//    private TableColumn<SupplierTM, String> colContactNumberr;
-//    @FXML
-//    private TableColumn<SupplierTM, String> colEmail;
-//    @FXML
-//    private TableColumn<SupplierTM, String> colAdress;
-//
-//
-//    @FXML
-//    private Button btnAdd;
-//
-//    @FXML
-//    private Button btnDelete;
-//
-//    @FXML
-//    private Button btnERefresh;
-//
-//    @FXML
-//    private Button btnSave;
-//
-//    @FXML
-//    private Button btnUpdate;
-//
-//    @FXML
-//    private Label lblUserId;
-//
-//    @FXML
-//    private TextField txtEmail;
-//
-//    @FXML
-//    private TextField txtName;
-//
-//    @FXML
-//    private Label SupplierContactNumber;
-//
-//    @FXML
-//    private Label SupplierEmail;
-//
-//    @FXML
-//    private Label SupplierName;
-//
-//    @FXML
-//    private Label SupplierContactName;
-//
-//    @FXML
-//    private TableColumn<?, ?> colContactName;
-//
-//    @FXML
-//    private TableColumn<?, ?> colContactNumber;
-//
-//    @FXML
-//    private TextField txtContactName;
-//
-//
-//    @FXML
-//    private TextField txtcontactNumber;
-//
-//
-//    public SupplierController() throws SQLException {
-//        this.connection = DBConnection.getInstance().getConnection();
-//    }
-//
-//    /**
-//     * @return
-//     * @throws SQLException
-//     */
-//    private Connection getConnection() throws SQLException {
-//        String url = "jdbc:mysql://localhost:3306/pizzahubsystemdb";
-//        String username = "root";
-//        String password = "1234";
-//
-//        return DriverManager.getConnection(url, username, password);
-//    }
-//
-//    private boolean validateInputs() {
-//        if (txtName.getText().isEmpty()) {
-//            showAlert("Name field cannot be empty.");
-//            return false;
-//        }
-//
-//        if (txtEmail.getText().isEmpty()) {
-//            showAlert("Email field cannot be empty.");
-//            return false;
-//        } else if (!txtEmail.getText().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-//            showAlert("Please enter a valid email address.");
-//            return false;
-//        }
-//
-//
-//
-//    private void showAlert(String message) {
-//        Alert alert = new Alert(Alert.AlertType.WARNING);
-//        alert.setTitle("Validation Error");
-//        alert.setHeaderText(null);
-//        alert.setContentText(message);
-//        alert.showAndWait();
-//    }
-//
-//
-//    private void startTransaction() {
-//        try {
-//            connection.setAutoCommit(false);
-//        } catch (SQLException e) {
-//            showAlert("Error", "Failed to start transaction: " + e.getMessage());
-//        }
-//    }
-//
-//    private void showAlert(String error, String s) {
-//    }
-//
-//    private void commitTransaction() {
-//        try {
-//            connection.commit();
-//            connection.setAutoCommit(true);
-//        } catch (SQLException e) {
-//            showAlert("Error", "Failed to commit transaction: " + e.getMessage());
-//        }
-//    }
-//
-//    private void rollbackTransaction() {
-//        try {
-//            connection.rollback();
-//            connection.setAutoCommit(true);
-//        } catch (SQLException e) {
-//            showAlert("Error", "Failed to rollback transaction: " + e.getMessage());
-//        }
-//    }
-//
-//    @FXML
-//    void btnSaveOnAction() {
-//        if (validateInputs()) {
-//            startTransaction();
-//
-//            try {
-//                String sql = "INSERT INTO supplier (name, email, password, role) VALUES (?, ?, ?, ?)";
-//                try (PreparedStatement statement = connection.prepareStatement(sql)) {
-//                    statement.setString(1, txtName.getText());
-//                    statement.setString(2, txtEmail.getText());
-//                    statement.setString(3, txtPassword.getText());
-//                    statement.setString(4, txtRole.getText());
-//
-//                    statement.executeUpdate();
-//                    commitTransaction();
-//                    showAlert("Success", "Supplier saved successfully.");
-//                }
-//            } catch (SQLException e) {
-//                rollbackTransaction();
-//                showAlert("Error", "An error occurred while saving supplier details. Transaction rolled back.");
-//            }
-//        }
-//    }
-//
-//    @FXML
-//    void btnUpdateOnAction() {
-//        if (validateInputs()) {
-//            startTransaction();
-//
-//            try {
-//                String sql = "UPDATE supplier SET  supplier_name = ?, contact_name = ?, contact_number = ? , address = ?, WHERE supplier_id = ?";
-//                try (PreparedStatement statement = connection.prepareStatement(sql)) {
-//                    statement.setString(1, supplierId.getText());
-//                    statement.setString(1, txtName.getText());
-//                    statement.setString(2, txtEmail.getText());
-//                    statement.setString(3, txtPassword.getText());
-//                    statement.setString(4, txtRole.getText());
-//                    statement.setInt(5, Integer.parseInt(lblUserId.getText()));
-//
-//                    statement.executeUpdate();
-//                    commitTransaction();
-//                    showAlert("Success", "Supplier updated successfully.");
-//                }
-//            } catch (SQLException e) {
-//                rollbackTransaction();
-//                showAlert("Error", "An error occurred while updating supplier details. Transaction rolled back.");
-//            }
-//        }
-//    }
-//
-//    @FXML
-//    void btnDeleteOnAction() {
-//        startTransaction();
-//
-//        try {
-//            String sql = "DELETE FROM supplier WHERE supplier_id = ?";
-//            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-//                statement.setInt(1, Integer.parseInt(lblUserId.getText()));
-//
-//                statement.executeUpdate();
-//                commitTransaction();
-//                showAlert("Success", "Supplier deleted successfully.");
-//            }
-//        } catch (SQLException e) {
-//            rollbackTransaction();
-//            showAlert("Error", "An error occurred while deleting supplier. Transaction rolled back.");
-//        }
-//    }
-//
-//    @FXML
-//    void addOnAction(ActionEvent event) {
-//
-//    }
-//
-//    @FXML
-//    void refreshOnAction(ActionEvent event) {
-//
-//    }
-//
-//
-//}
-//
-//    private void showAlert(String s) {
-//        return;
-//    }
-//    }
-//
-//

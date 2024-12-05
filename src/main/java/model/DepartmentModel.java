@@ -10,32 +10,18 @@ import java.util.ArrayList;
 public class DepartmentModel {
 
     public static boolean save(DepartmentDTO dto) throws SQLException {
-/*        String query = "INSERT INTO department (department_id, department_name, description, manager_name, num_employees) VALUES (?, ?, ?, ?, ?)";
-        Connection connection = DBConnection.getInstance().getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, dto.getDepartment_id());
-            preparedStatement.setString(2, dto.getDepartment_name());
-            preparedStatement.setString(3,dto.getManager_name() );
-            preparedStatement.setString(4, dto.getNumber_of_employees());
-            preparedStatement.setString(5, dto.getDescription());
-
-            return preparedStatement.executeUpdate() > 0;*/
-
         return CrudUtil.execute(
-                "INSERT INTO department VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO department (department_id, department_name, manager_name, num_employees, description) VALUES (?, ?, ?, ?, ?)",
                 dto.getDepartment_id(),
                 dto.getDepartment_name(),
                 dto.getManager_name(),
-                dto.getNumber_of_employees(),dto.getDescription()
+                dto.getNumber_of_employees(),
+                dto.getDescription()
         );
-
-
-
     }
 
-
     public static String getNextDepartmentId() throws SQLException {
-        ResultSet rst = Util.CrudUtil.execute("select department_id from department order by department_id desc limit 1");
+        ResultSet rst = CrudUtil.execute("SELECT department_id FROM department ORDER BY department_id DESC LIMIT 1");
 
         if (rst.next()) {
             String lastId = rst.getString(1);
@@ -45,62 +31,63 @@ public class DepartmentModel {
         return "1";
     }
 
-    public boolean saveDepartment(DepartmentDTO departmentDTO) throws SQLException {
-        return Util.CrudUtil.execute(
-                "insert into department(Department_id, Department_name,Manager_name,Number_of_employees,Description) values (?, ? , ? , ? , ?)",
-                departmentDTO.getDepartment_id(),
+    public static ArrayList<DepartmentDTO> getAllDepartments() throws SQLException {
+        ResultSet rst = CrudUtil.execute("SELECT * FROM department");
+
+        ArrayList<DepartmentDTO> departmentList = new ArrayList<>();
+        while (rst.next()) {
+            departmentList.add(new DepartmentDTO(
+                    rst.getString("department_id"),
+                    rst.getString("department_name"),
+                    rst.getString("manager_name"),
+                    rst.getInt("num_employees"),
+                    rst.getString("description")
+            ));
+        }
+        return departmentList;
+    }
+
+    public static boolean updateDepartment(DepartmentDTO departmentDTO) throws SQLException {
+        return CrudUtil.execute(
+                "UPDATE department SET department_name=?, manager_name=?, num_employees=?, description=? WHERE department_id=?",
                 departmentDTO.getDepartment_name(),
                 departmentDTO.getManager_name(),
                 departmentDTO.getNumber_of_employees(),
-                departmentDTO.getDescription()
-        );
-    }
-
-    public ArrayList<DepartmentDTO> getAllDepartments() throws SQLException {
-       /* ResultSet rst = Util.CrudUtil.execute("select * from department");
-
-        ArrayList<DepartmentDTO> departmentDTOS = new ArrayList<>();
-
-        while (rst.next()) {
-            DepartmentDTO departmentDTO = new DepartmentDTO(
-                    rst.getInt(1),
-                    rst.getString(2)
-            );
-            departmentDTOS.add(departmentDTO);
-        }
-        return departmentDTOS;*/
-        return null;
-    }
-
-    public boolean updateDepartment(DepartmentDTO departmentDTO) throws SQLException {
-        return Util.CrudUtil.execute(
-                "update department set name=? where department_id=?",
-                departmentDTO.getDepartment_name(),
+                departmentDTO.getDescription(),
                 departmentDTO.getDepartment_id()
         );
     }
 
-
-    public boolean deleteDepartment(int departmentId) throws SQLException {
-        return Util.CrudUtil.execute("delete from department where department_id=?", departmentId);
+    public static boolean deleteDepartment(String departmentId) throws SQLException {
+        return CrudUtil.execute("DELETE FROM department WHERE department_id=?", departmentId);
     }
 
-    public DepartmentDTO findById(int departmentId) throws SQLException {
-       /* ResultSet rst = Util.CrudUtil.execute("select * from department where department_id=?", departmentId);
+    public static DepartmentDTO findById(String departmentId) throws SQLException {
+        ResultSet rst = CrudUtil.execute("SELECT * FROM department WHERE department_id=?", departmentId);
 
         if (rst.next()) {
             return new DepartmentDTO(
-                    rst.getInt(1),
-                    rst.getString(2)
+                    rst.getString("department_id"),
+                    rst.getString("department_name"),
+                    rst.getString("manager_name"),
+                    rst.getInt("num_employees"),
+                    rst.getString("description")
             );
         }
-        return null;*/
         return null;
     }
 
+    public static ArrayList<String> getAllDepartmentIds() throws SQLException {
+        ResultSet rst = CrudUtil.execute("SELECT department_id FROM department");
+
+        ArrayList<String> departmentIds = new ArrayList<>();
+        while (rst.next()) {
+            departmentIds.add(rst.getString(1));
+        }
+        return departmentIds;
+    }
+
     public boolean delete(String text) {
-        return Util.CrudUtil.execute();
+        return (true);
     }
 }
-
-

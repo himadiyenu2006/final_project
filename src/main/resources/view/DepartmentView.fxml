@@ -85,7 +85,7 @@
           <TableColumn fx:id="deptIdColumn" prefWidth="159.99999618530273" text="Department ID" />
           <TableColumn fx:id="deptNameColumn" prefWidth="207.2000732421875" text="Department Name" />
             <TableColumn fx:id="managerNameColumn" prefWidth="131.20001220703125" text="Manager Name" />
-            <TableColumn fx:id="employeeCountColumn" prefWidth="204.0" text="Employees" />
+            <TableColumn fx:id="employeeCountColumn" prefWidth="204.0" text="Number of Employees" />
             <TableColumn fx:id="deptdescriptionColumn" prefWidth="264.00006103515625" text=" Description" />
         </columns>
       </TableView>

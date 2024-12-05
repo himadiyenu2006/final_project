@@ -20,7 +20,7 @@ public class CustomerModel {
             String substring = lastId.substring(1);
             int i = Integer.parseInt(substring);
             int newIdIndex = i + 1;
-//            return String.format("C%03d", newIdIndex);
+
         }
         return 1;
     }
