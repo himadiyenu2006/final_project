@@ -1,12 +1,18 @@
 package model;
 
+import lk.ijse.gdse.pizzahubsystem.db.DBConnection;
 import lk.ijse.gdse.pizzahubsystem.dto.InventoryDTO;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class InventoryModel {
 
+
+    private DBConnection DatabaseConnection;
 
     public String getNextInventoryId() throws SQLException {
         ResultSet rst = Util.CrudUtil.execute("SELECT inventory_id FROM inventory ORDER BY inventory_id DESC LIMIT 1");
@@ -38,11 +44,13 @@ public class InventoryModel {
 
         while (rst.next()) {
             InventoryDTO inventoryDTO = new InventoryDTO(
-                    rst.getInt(1),
-                    rst.getInt(2),
-                    rst.getInt(3),
-                    rst.getString(4)
-            );
+                    rst.getString(1),
+                    rst.getString(2),
+                    rst.getString(3),
+                    rst.getInt(4),
+                    rst.getString(5)
+
+                    );
             inventoryItems.add(inventoryDTO);
         }
         return inventoryItems;
@@ -70,12 +78,41 @@ public class InventoryModel {
 
         if (rst.next()) {
             return new InventoryDTO(
-                    rst.getInt(1),
-                    rst.getInt(2),
-                    rst.getInt(3),
-                    rst.getString(4)
+                    rst.getString(1),
+                    rst.getString(2),
+                    rst.getString(3),
+                    rst.getInt(4),
+                    rst.getString(5)
             );
         }
         return null;
     }
+
+    public InventoryDTO getInventoryById(String inventoryId) {
+        String query = "SELECT * FROM inventory WHERE inventory_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setString(1, inventoryId);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return new InventoryDTO(
+                        rs.getString("inventory_id"),
+                        rs.getString("product_id"),
+                        rs.getString("supplier_id"),
+                        rs.getInt("quantity"),
+                        rs.getString("last_updated")
+                );
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 }

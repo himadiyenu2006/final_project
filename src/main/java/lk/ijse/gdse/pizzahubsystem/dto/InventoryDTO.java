@@ -12,8 +12,9 @@ public class InventoryDTO {
     private String product_id;
     private String supplier_id;
     private Integer quantity;
-    private java.sql.Date last_updated;
+    private String last_updated;
 
-    public InventoryDTO(int anInt, int anInt1, int anInt2, String string) {
+
+    public InventoryDTO(String text, String text1, String text2, int quantity, String text3) {
     }
 }

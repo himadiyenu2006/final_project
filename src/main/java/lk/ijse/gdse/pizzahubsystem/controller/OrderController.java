@@ -3,90 +3,146 @@ package lk.ijse.gdse.pizzahubsystem.controller;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import lk.ijse.gdse.pizzahubsystem.dto.tm.OrderTM;
-
+import javafx.scene.control.cell.PropertyValueFactory;
+import lk.ijse.gdse.pizzahubsystem.dto.OrderDTO;
+import model.OrderModel;
+import javafx.scene.control.TableView;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
 public class OrderController {
 
-    public TableColumn collStatus;
-
-    public TableColumn colTotalPrice;
-
-    public javafx.scene.control.TableView tblorder;
-
-    public TextField txtStatus;
+    public Label txtorderdate;
+    public Label orderDate;
+    public TextField txtcustomerId;
+    public TextField txtcustomerId1;
+    public Label lblItemPrice;
+    public TableView tblorder;
+    public TableColumn colorderId;
+    public TableColumn colorderDate;
+    public TableColumn colcustomerId;
+    public Button btnrest;
+    public Button btnplaceorder;
     @FXML
-    private ComboBox<OrderTM> cmbCustomerId;
-
-    @FXML
-    private TableColumn<OrderTM, String> colAction;
-
-    @FXML
-    private TableColumn<OrderTM, String> colName;
+    private Button btnPlaceOrder;
 
     @FXML
-    private TableColumn<OrderTM, Double> colPrice;
+    private Button btnReset;
 
     @FXML
-    private TableColumn<OrderTM, String> colQuantity;
+    private TableColumn<OrderDTO, String> colStatus;
 
     @FXML
-    private TableColumn<OrderTM, String> colTotal;
+    private TableColumn<OrderDTO, Double> colTotal;
 
     @FXML
-    private Label lblCustomerName;
+    private TableColumn<OrderDTO, String> colCustomerId;
 
     @FXML
-    private Label lblItemPrice;
+    private TableColumn<OrderDTO, LocalDate> colOrderDate;
+
+    @FXML
+    private TableColumn<OrderDTO, String> colOrderId;
 
     @FXML
     private Label lblOrderId;
 
     @FXML
-    private Label orderDate;
+    private DatePicker dpOrderDate;
 
     @FXML
-    private TableView<OrderTM> tblOrder;
+    private TableView<OrderDTO> tblOrder;
+
+    @FXML
+    private TextField txtStatus;
+
+    @FXML
+    private TextField txtCustomerId;
+
+    @FXML
+    private TextField txtTotalPrice;
 
     @FXML
     void btnPlaceOrderOnAction(ActionEvent event) {
-        if (validateOrderDetails()) {
-            showAlert("Order Placed", "Your order has been successfully placed!", Alert.AlertType.INFORMATION);
+        try {
+            String orderId = lblOrderId.getText();
+            String customerId = txtCustomerId.getText();
+            LocalDate orderDate = dpOrderDate.getValue();
+            double totalPrice = Double.parseDouble(txtTotalPrice.getText());
+            String status = txtStatus.getText();
+            
+            if (orderId.isEmpty() || customerId.isEmpty() || orderDate == null || status.isEmpty()) {
+                showAlert("Validation Error", "Please fill in all fields correctly.", Alert.AlertType.WARNING);
+                return;
+            }
+            
+            OrderDTO order = new OrderDTO(orderId, orderDate, status, totalPrice, customerId);
+            
+            boolean isSaved = new OrderModel().saveOrder(order);
 
-            btnResetOnAction(event);
+            if (isSaved) {
+                showAlert("Success", "Order placed successfully!", Alert.AlertType.INFORMATION);
+                loadOrders(); 
+                resetForm();  
+            } else {
+                showAlert("Error", "Failed to place the order.", Alert.AlertType.ERROR);
+            }
+        } catch (NumberFormatException e) {
+            showAlert("Validation Error", "Please enter a valid total price.", Alert.AlertType.WARNING);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "An error occurred while saving the order.", Alert.AlertType.ERROR);
         }
     }
 
     @FXML
     void btnResetOnAction(ActionEvent event) {
-        cmbCustomerId.getSelectionModel().clearSelection();
-        lblCustomerName.setText("");
-        lblItemPrice.setText("");
-        lblOrderId.setText("");
-        orderDate.setText("");
-
-        tblOrder.getItems().clear();
+        resetForm();
     }
 
     @FXML
-    void cmbCustomerOnAction(ActionEvent event) {
-        OrderTM selectedCustomer = cmbCustomerId.getValue();
-        if (selectedCustomer != null) {
-            lblCustomerName.setText(String.valueOf(selectedCustomer.getCustomer_id()));
+    public void initialize() {
+        colorderId.setCellValueFactory(new PropertyValueFactory<>("order_id"));
+        colcustomerId.setCellValueFactory(new PropertyValueFactory<>("customer_id"));
+        colorderDate.setCellValueFactory(new PropertyValueFactory<>("order_date"));
+        colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+        colTotal.setCellValueFactory(new PropertyValueFactory<>("total_price"));
+        
+        loadOrders();
+        
+        generateOrderId();
+    }
+
+    private void resetForm() {
+        lblOrderId.setText("");
+        txtcustomerId.clear();
+        dpOrderDate.setValue(null);
+        txtTotalPrice.clear();
+        txtStatus.clear();
+    }
+
+    private void loadOrders() {
+        try {
+            ArrayList<OrderDTO> orderDTOS = new OrderModel().getAllOrders();
+
+            tblorder.getItems().clear();
+
+           // tblOrder.getItems().addAll(orderDTOS);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load orders.", Alert.AlertType.ERROR);
         }
     }
 
-    private boolean validateOrderDetails() {
-        if (cmbCustomerId.getValue() == null) {
-            showAlert("Validation Error", "Please select a customer.", Alert.AlertType.WARNING);
-            return false;
-        }
 
-        if (tblOrder.getItems().isEmpty()) {
-            showAlert("Validation Error", "Please add items to the order before placing it.", Alert.AlertType.WARNING);
-            return false;
+    private void generateOrderId() {
+        try {
+            String nextOrderId = new OrderModel().getNextOrderId();
+            lblOrderId.setText(nextOrderId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to generate Order ID.", Alert.AlertType.ERROR);
         }
-
-        return true;
     }
 
     private void showAlert(String title, String message, Alert.AlertType alertType) {
@@ -96,5 +152,4 @@ public class OrderController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
 }

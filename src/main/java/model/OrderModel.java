@@ -22,7 +22,7 @@ public class OrderModel {
     }
 
 
-    public boolean saveOrder(OrderDTO orderDTO) throws SQLException {
+    public static boolean saveOrder(OrderDTO orderDTO) throws SQLException {
         return Util.CrudUtil.execute(
                 "insert into orders(order_id, customer_id, order_date, total_amount, status) values (?,?,?,?,?)",
                 orderDTO.getOrder_id(),
@@ -42,7 +42,7 @@ public class OrderModel {
         while (rst.next()) {
             OrderDTO orderDTO = new OrderDTO(
                     rst.getString(1),
-                    rst.getDate(2),
+                    rst.getDate(2).toLocalDate(),
                     rst.getString(3),
                     rst.getDouble(4),
                     rst.getString(5)
@@ -53,29 +53,13 @@ public class OrderModel {
     }
 
 
-    public boolean updateOrder(OrderDTO orderDTO) throws SQLException {
-        return Util.CrudUtil.execute(
-                "update orders set customer_id=?, order_date=?, status=? , total_price=?, where order_id=?",
-                orderDTO.getCustomer_id(),
-                orderDTO.getOrder_date(),
-                orderDTO.getStatus(),
-                orderDTO.getTotal_price(),
-                orderDTO.getOrder_id()
-
-        );
-    }
-
-    public boolean deleteOrder(String orderId) throws SQLException {
-        return Util.CrudUtil.execute("delete from orders where order_id=?", orderId);
-    }
-
     public OrderDTO findById(String orderId) throws SQLException {
         ResultSet rst = Util.CrudUtil.execute("select * from orders where order_id=?", orderId);
 
         if (rst.next()) {
             return new OrderDTO(
                     rst.getString(1),
-                    rst.getDate(2),
+                    rst.getDate(2).toLocalDate(),
                     rst.getString(3),
                     rst.getDouble(4),
                     rst.getString(5)

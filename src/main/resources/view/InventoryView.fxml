@@ -65,6 +65,7 @@
             <Button fx:id="btnAdd" mnemonicParsing="false" onAction="#AddOnAction" prefHeight="26.0" prefWidth="121.0" style="-fx-background-color: #7fd1ec;" text="Add  " textAlignment="CENTER" />
             <Button fx:id="btnUpdated" mnemonicParsing="false" onAction="#UpdateOnAction" prefHeight="26.0" prefWidth="133.0" style="-fx-background-color: #7fd1ec;" text="Update" textAlignment="CENTER" />
             <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#deleteOnAction" prefHeight="26.0" prefWidth="133.0" style="-fx-background-color: #7fd1ec;" text="Delete" textAlignment="CENTER" />
+            <Button fx:id="btnSave" layoutX="267.0" layoutY="24.0" mnemonicParsing="false" onAction="#SaveOnAction" prefHeight="26.0" prefWidth="121.0" style="-fx-background-color: #7fd1ec;" text="Save" textAlignment="CENTER" />
          </children>
       </HBox>
       <HBox layoutX="88.0" layoutY="630.0" prefHeight="30.0" prefWidth="695.0">

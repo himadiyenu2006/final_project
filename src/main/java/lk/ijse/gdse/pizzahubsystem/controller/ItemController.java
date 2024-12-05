@@ -1,147 +1,412 @@
 package lk.ijse.gdse.pizzahubsystem.controller;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
 import javafx.scene.control.TableView;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
+import lk.ijse.gdse.pizzahubsystem.db.DBConnection;
+import lk.ijse.gdse.pizzahubsystem.dto.ItemDTO;
+import lk.ijse.gdse.pizzahubsystem.dto.OrderDetailsDTO;
 import lk.ijse.gdse.pizzahubsystem.dto.tm.ItemTM;
-import net.sf.jasperreports.components.items.Item;
+import model.ItemModel;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class ItemController {
 
     public TableView iterable;
+
+    public TableColumn itemIdColumn;
+
+    public TableColumn itemNameColumn;
+
+    public TableColumn itemQuantityColumn;
+
+    public TableColumn itemPriceColumn;
+
+    public ImageView imageItem;
+
+    public Label txtId;
+
+    public TextField txtName;
+
+    public TextField txtQuantity;
+
+    public TextField txtPrice;
+
+    public Button btnSave;
+
+    public Button btnupdate;
+
+    public Button btndelete;
+
+    public Button btnreset;
+
     @FXML
-    private Button btnDeleteItem;
+    private TableView<ItemTM> itemTable;
+
+    @FXML
+    private TableColumn<ItemTM, String> colItemId;
+
+    @FXML
+    private TableColumn<ItemTM, String> colName;
+
+    @FXML
+    private TableColumn<ItemTM, Integer> colQuantity;
+
+    @FXML
+    private TableColumn<ItemTM, Double> colPrice;
+
+    @FXML
+    private TextField itemIdField;
+
+    @FXML
+    private TextField nameField;
+
+    @FXML
+    private TextField quantityField;
+
+    @FXML
+    private TextField priceField;
+
+    @FXML
+    private Button btnDelete;
 
     @FXML
     private Button btnReset;
 
     @FXML
-    private Button btnSaveItem;
+    private Button btnAdd;
 
     @FXML
-    private Button btnUpdateItem;
+    private Button btnUpdate;
 
     @FXML
-    private ImageView imageItem;
+    private AnchorPane itemPane;
 
     @FXML
-    private TableColumn<ItemTM, Integer> itemIdColumn;
+    private ImageView imageView;
+
+    private ItemModel itemModel = new ItemModel();
+
+    private static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-z ]{3,30}$");
+    private static final Pattern QUANTITY_PATTERN = Pattern.compile("^[0-9]{1,5}$");
+    private static final Pattern PRICE_PATTERN = Pattern.compile("^[0-9]+(\\.[0-9]{1,2})?$");
 
     @FXML
-    private TableColumn<ItemTM, String> itemNameColumn;
+    public void saveItemOnAction(ActionEvent event) throws SQLException {
+        String itemId = itemIdField.getText().trim();
+        String name = nameField.getText().trim();
+        String quantity = quantityField.getText().trim();
+        String price = priceField.getText().trim();
 
-    @FXML
-    private TableColumn<ItemTM, Double> itemPriceColumn;
+        if (validateItemDetails()) {
+            ItemDTO itemDTO = new ItemDTO(itemId, name, Integer.parseInt(quantity), Double.parseDouble(price));
+            boolean isSaved = itemModel.saveItem(itemDTO);
 
-    @FXML
-    private TableColumn<ItemTM, String> itemQuantityColumn;
-
-    @FXML
-    private Label lblItemId;
-
-    @FXML
-    private TextField txtName;
-
-    @FXML
-    private TextField txtPrice;
-
-    @FXML
-    private TextField txtQuantity;
-
-    public TableView<Item> itemTable;
-
-    private boolean validateInputs() {
-        String name = txtName.getText().trim();
-        String priceText = txtPrice.getText().trim();
-        String quantityText = txtQuantity.getText().trim();
-
-        if (name.isEmpty()) {
-            showAlert("Validation Error", "Item name cannot be empty.", Alert.AlertType.ERROR);
-            return false;
+            if (isSaved) {
+                refreshPage();
+                new Alert(Alert.AlertType.INFORMATION, "Item saved...!").show();
+            } else {
+                new Alert(Alert.AlertType.ERROR, "Fail to save item...!").show();
+            }
         }
-        if (!priceText.matches("\\d+(\\.\\d{1,2})?")) {
-            showAlert("Validation Error", "Price must be a valid number (e.g., 10 or 10.99).", Alert.AlertType.ERROR);
-            return false;
-        }
-        if (!quantityText.matches("\\d+")) {
-            showAlert("Validation Error", "Quantity must be a whole number.", Alert.AlertType.ERROR);
-            return false;
-        }
-        return true;
     }
 
-    private void showAlert(String title, String content, Alert.AlertType alertType) {
+    @FXML
+    public void updateItemOnAction(ActionEvent event) throws SQLException {
+        String itemId = itemIdField.getText().trim();
+        String name = nameField.getText().trim();
+        String quantity = quantityField.getText().trim();
+        String price = priceField.getText().trim();
+
+        if (validateItemDetails()) {
+            ItemDTO itemDTO = new ItemDTO(itemId, name, Integer.parseInt(quantity), Double.parseDouble(price));
+            boolean isUpdated = itemModel.updateItem(itemDTO);
+
+            if (isUpdated) {
+                refreshPage();
+                new Alert(Alert.AlertType.INFORMATION, "Item updated...!").show();
+            } else {
+                new Alert(Alert.AlertType.ERROR, "Fail to update item...!").show();
+            }
+        }
+    }
+
+    @FXML
+    public void deleteItemOnAction(ActionEvent event) throws SQLException {
+        String itemId = itemIdField.getText().trim();
+
+        if (itemId.isEmpty()) {
+            showAlert("Error", "Item ID cannot be empty", Alert.AlertType.ERROR);
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure?", ButtonType.YES, ButtonType.NO);
+        Optional<ButtonType> optionalButtonType = alert.showAndWait();
+
+        if (optionalButtonType.isPresent() && optionalButtonType.get() == ButtonType.YES) {
+            boolean isDeleted = itemModel.deleteItem(itemId);
+
+            if (isDeleted) {
+                refreshPage();
+                new Alert(Alert.AlertType.INFORMATION, "Item deleted...!").show();
+            } else {
+                new Alert(Alert.AlertType.ERROR, "Fail to delete item...!").show();
+            }
+        }
+    }
+
+    @FXML
+    public void clearFieldsOnAction(ActionEvent event) {
+        itemIdField.clear();
+        nameField.clear();
+        quantityField.clear();
+        priceField.clear();
+    }
+
+    private boolean validateItemDetails() {
+        boolean isValid = true;
+
+        if (!NAME_PATTERN.matcher(nameField.getText().trim()).matches()) {
+            nameField.setStyle("-fx-border-color: red;");
+            isValid = false;
+        }
+
+        if (!QUANTITY_PATTERN.matcher(quantityField.getText().trim()).matches()) {
+            quantityField.setStyle("-fx-border-color: red;");
+            isValid = false;
+        }
+
+        if (!PRICE_PATTERN.matcher(priceField.getText().trim()).matches()) {
+            priceField.setStyle("-fx-border-color: red;");
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    private void refreshPage() throws SQLException {
+        loadTableData();
+        clearFieldsOnAction(null);
+        btnReset.setDisable(false);
+        btnSave.setDisable(true);
+        btnUpdate.setDisable(true);
+        btndelete.setDisable(true);
+    }
+
+    private void loadTableData() throws SQLException {
+        ObservableList<ItemTM> itemList = FXCollections.observableArrayList();
+        List<ItemDTO> items = itemModel.getAllItems();
+
+        for (ItemDTO item : items) {
+            itemList.add(new ItemTM(item.getItem_id(), item.getName(), item.getQuantity(), item.getPrice()));
+        }
+
+        iterable.setItems(itemList);
+    }
+
+    @FXML
+    public void initialize() throws SQLException {
+        itemIdColumn.setCellValueFactory(new PropertyValueFactory<>("item_id"));
+        itemNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        itemQuantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+        itemPriceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+
+        loadTableData();
+    }
+
+    private void showAlert(String title, String message, Alert.AlertType alertType) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
-        alert.setContentText(content);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
         alert.showAndWait();
     }
 
     @FXML
-    void btnSaveItemOnAction(ActionEvent event) {
-        if (validateInputs()) {
-            String name = txtName.getText();
-            double price = Double.parseDouble(txtPrice.getText());
-            String quantity = txtQuantity.getText();
-
-            ItemTM newItem = new ItemTM(0, name, price, quantity);
-            itemTable.getItems().add((Item) newItem);
-            showAlert("Success", "Item saved successfully.", Alert.AlertType.INFORMATION);
-            resetForm();
-        }
-    }
-
-    @FXML
-    void btnUpdateItemOnAction(ActionEvent event) {
-        ItemTM selectedItem = (ItemTM) itemTable.getSelectionModel().getSelectedItem();
-        if (selectedItem != null && validateInputs()) {
-            selectedItem.setItemName(txtName.getText());
-            selectedItem.setItemPrice(Double.parseDouble(txtPrice.getText()));
-            selectedItem.setItemQuantity(txtQuantity.getText());
-
-            itemTable.refresh();
-            showAlert("Success", "Item updated successfully.", Alert.AlertType.INFORMATION);
-            resetForm();
-        } else {
-            showAlert("Selection Error", "Please select an item to update.", Alert.AlertType.WARNING);
-        }
-    }
-
-    @FXML
-    void btnDeleteItemOnAction(ActionEvent event) {
-        ItemTM selectedItem = (ItemTM) itemTable.getSelectionModel().getSelectedItem();
-        if (selectedItem != null) {
-            itemTable.getItems().remove(selectedItem);
-            showAlert("Success", "Item deleted successfully.", Alert.AlertType.INFORMATION);
-            resetForm();
-        } else {
-            showAlert("Selection Error", "Please select an item to delete.", Alert.AlertType.WARNING);
-        }
-    }
-
-    @FXML
-    void btnResetOnAction(ActionEvent event) {
-        resetForm();
-    }
-    private void resetForm() {
-        lblItemId.setText("ID");
+    public void resetOnAction(ActionEvent actionEvent) {
+        itemIdField.clear();
         txtName.clear();
-        txtPrice.clear();
         txtQuantity.clear();
-        itemTable.getSelectionModel().getSelectedItem();
+        txtPrice.clear();
+
+        btnSave.setDisable(true);
+        btnupdate.setDisable(false);
+        btndelete.setDisable(true);
+        btnreset.setDisable(true);
+    }
+    @FXML
+    public void DeleteOnAction(ActionEvent actionEvent) {
+        String itemId = txtId.getText().trim();
+
+        if (itemId.isEmpty()) {
+            showAlert("Error", "Item ID cannot be empty", Alert.AlertType.ERROR);
+            return;
+        }
+
+        try {
+            boolean result = itemModel.deleteItem(itemId);
+            if (result) {
+                showAlert("Success", "Item deleted successfully", Alert.AlertType.INFORMATION);
+                resetOnAction(actionEvent);
+            } else {
+                showAlert("Error", "Failed to delete item", Alert.AlertType.ERROR);
+            }
+        } catch (Exception e) {
+            showAlert("Error", "Error occurred while deleting the item: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+
+    @FXML
+    public void UpdateOnAction(ActionEvent actionEvent) {
+        String itemId = txtId.getText().trim();
+        String name = txtName.getText().trim();
+        String quantityText = txtQuantity.getText().trim();
+        String priceText = txtPrice.getText().trim();
+
+        if (itemId.isEmpty() || name.isEmpty() || quantityText.isEmpty() || priceText.isEmpty()) {
+            showAlert("Error", "All fields are required", Alert.AlertType.ERROR);
+            return;
+        }
+
+        try {
+            int quantity = Integer.parseInt(quantityText);
+            double price = Double.parseDouble(priceText);
+
+            ItemDTO updatedItem = new ItemDTO(itemId, name, quantity, price);
+
+            boolean result = itemModel.updateItem(updatedItem);
+            if (result) {
+                showAlert("Success", "Item updated successfully", Alert.AlertType.INFORMATION);
+                resetOnAction(actionEvent);
+            } else {
+                showAlert("Error", "Failed to update item", Alert.AlertType.ERROR);
+            }
+        } catch (NumberFormatException e) {
+            showAlert("Error", "Invalid quantity or price", Alert.AlertType.ERROR);
+        } catch (Exception e) {
+            showAlert("Error", "Error occurred while updating the item: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
     }
 
     @FXML
-    void itemTableOnMouseClicked(MouseEvent event) {
-        ItemTM selectedItem = (ItemTM) itemTable.getSelectionModel().getSelectedItem();
-        if (selectedItem != null) {
-            lblItemId.setText(String.valueOf(selectedItem.getItemId()));
-            txtName.setText(selectedItem.getItemName());
-            txtPrice.setText(String.valueOf(selectedItem.getItemPrice()));
-            txtQuantity.setText(selectedItem.getItemQuantity());
+    public void SaveOnAction(ActionEvent actionEvent) {
+        String itemId = txtId.getText().trim();
+        String name = txtName.getText().trim();
+        String quantityText = txtQuantity.getText().trim();
+        String priceText = txtPrice.getText().trim();
+
+        if (itemId.isEmpty() || name.isEmpty() || quantityText.isEmpty() || priceText.isEmpty()) {
+            showAlert("Error", "All fields are required", Alert.AlertType.ERROR);
+            return;
+        }
+
+        try {
+            int quantity = Integer.parseInt(quantityText);
+            double price = Double.parseDouble(priceText);
+
+            ItemDTO newItem = new ItemDTO(itemId, name, quantity, price);
+
+            boolean result = itemModel.saveItem(newItem);
+            if (result) {
+                showAlert("Success", "Item saved successfully", Alert.AlertType.INFORMATION);
+                resetOnAction(actionEvent);
+            } else {
+                showAlert("Error", "Failed to save item", Alert.AlertType.ERROR);
+            }
+        } catch (NumberFormatException e) {
+            showAlert("Error", "Invalid quantity or price", Alert.AlertType.ERROR);
+        } catch (Exception e) {
+            showAlert("Error", "Error occurred while saving the item: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
+    @FXML
+    public void reduceQuantityOnAction(ActionEvent actionEvent) {
+        String itemId = txtId.getText().trim();
+        String quantityText = txtQuantity.getText().trim();
+
+        if (itemId.isEmpty() || quantityText.isEmpty()) {
+            showAlert("Error", "Item ID and quantity cannot be empty", Alert.AlertType.ERROR);
+            return;
+        }
+
+        try {
+            int quantity = Integer.parseInt(quantityText);
+
+            String someOtherString = "";
+            String anotherString = "";
+            double price = 0.0;
+
+            OrderDetailsDTO orderDetailsDTO = new OrderDetailsDTO(itemId, someOtherString, anotherString, quantity, price);
+
+            boolean result = itemModel.reduceQty(orderDetailsDTO);
+
+            if (result) {
+                showAlert("Success", "Item quantity reduced successfully", Alert.AlertType.INFORMATION);
+                resetOnAction(actionEvent);
+            } else {
+                showAlert("Error", "Failed to reduce item quantity", Alert.AlertType.ERROR);
+            }
+        } catch (NumberFormatException e) {
+            showAlert("Error", "Invalid quantity entered", Alert.AlertType.ERROR);
+        } catch (Exception e) {
+            showAlert("Error", "Error occurred while reducing item quantity: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML
+
+    public void loadItemIdsOnAction(ActionEvent actionEvent) {
+        try {
+            ArrayList<String> itemIds = itemModel.getAllItemIds();
+
+            if (itemIds.isEmpty()) {
+                showAlert("Warning", "No items available", Alert.AlertType.WARNING);
+            }
+        } catch (SQLException e) {
+            showAlert("Error", "Failed to load item IDs: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+    public boolean addItem(ItemDTO newItem) {
+        try {
+            return CrudUtil.execute(
+                    "INSERT INTO item (item_id, name, quantity, price) VALUES (?, ?, ?, ?)",
+                    newItem.getItem_id(),
+                    newItem.getName(),
+                    newItem.getQuantity(),
+                    newItem.getPrice()
+            );
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public class CrudUtil {
+        public static boolean execute(String query, Object... params) throws SQLException {
+            DBConnection DBConnection = null;
+            try (Connection connection = DBConnection.getConnection();
+                 PreparedStatement statement = connection.prepareStatement(query)) {
+                for (int i = 0; i < params.length; i++) {
+                    statement.setObject(i + 1, params[i]);
+                }
+
+                return statement.executeUpdate() > 0;
+            }
+        }
+    }
+
 }

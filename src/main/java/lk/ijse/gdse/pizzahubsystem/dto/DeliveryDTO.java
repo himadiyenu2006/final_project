@@ -17,4 +17,5 @@ public class DeliveryDTO {
     private Date delivery_date;
     private String delivery_status;
     private String employee_id;
+
 }

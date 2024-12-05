@@ -13,7 +13,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <AnchorPane prefHeight="800.0" prefWidth="1000.0" style="-fx-background-color: pink;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lk.ijse.gdse.pizzahubsystem.controller.ItemController">
    <children>
       <Label alignment="CENTER" layoutX="277.0" text="Item Management" textFill="#a42727">
@@ -45,7 +44,7 @@
                               <Font name="Calibri" size="14.0" />
                            </font>
                         </Label>
-                        <Label fx:id="lblItemId" layoutX="10.0" layoutY="15.0" maxWidth="1.7976931348623157E308" prefHeight="34.0" prefWidth="527.0" text="1" HBox.hgrow="ALWAYS">
+                        <Label fx:id="txtId" layoutX="10.0" layoutY="15.0" maxWidth="1.7976931348623157E308" prefHeight="34.0" prefWidth="527.0" text="1" HBox.hgrow="ALWAYS">
                            <font>
                               <Font name="Calibri" size="14.0" />
                            </font>
@@ -100,7 +99,7 @@
       </VBox>
       <HBox alignment="CENTER_RIGHT" layoutX="419.0" layoutY="290.0" spacing="30.0">
          <children>
-            <Button fx:id="btnReset" layoutX="290.0" layoutY="10.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#btnResetOnAction" prefWidth="80.0" style="-fx-background-color: #e74c3c;" text="Reset" textFill="WHITE" HBox.hgrow="ALWAYS">
+            <Button fx:id="btnreset" layoutX="290.0" layoutY="10.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#resetOnAction" prefWidth="80.0" style="-fx-background-color: #e74c3c;" text="Reset" textFill="WHITE" HBox.hgrow="ALWAYS">
                <font>
                   <Font name="Calibri Bold" size="14.0" />
                </font>
@@ -108,7 +107,7 @@
                   <Cursor fx:constant="CLOSED_HAND" />
                </cursor>
             </Button>
-            <Button fx:id="btnDeleteItem" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#btnDeleteItemOnAction" prefWidth="80.0" style="-fx-background-color: #c0392b;" text="Delete" textFill="WHITE" HBox.hgrow="ALWAYS">
+            <Button fx:id="btndelete" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#DeleteOnAction" prefWidth="80.0" style="-fx-background-color: #c0392b;" text="Delete" textFill="WHITE" HBox.hgrow="ALWAYS">
                <font>
                   <Font name="Calibri Bold" size="14.0" />
                </font>
@@ -116,7 +115,7 @@
                   <Cursor fx:constant="CLOSED_HAND" />
                </cursor>
             </Button>
-            <Button fx:id="btnUpdateItem" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#btnUpdateItemOnAction" prefWidth="80.0" style="-fx-background-color: #3498db;" text="Update" textFill="WHITE" HBox.hgrow="ALWAYS">
+            <Button fx:id="btnupdate" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#UpdateOnAction" prefWidth="80.0" style="-fx-background-color: #3498db;" text="Update" textFill="WHITE" HBox.hgrow="ALWAYS">
                <font>
                   <Font name="Calibri Bold" size="14.0" />
                </font>
@@ -124,7 +123,7 @@
                   <Cursor fx:constant="CLOSED_HAND" />
                </cursor>
             </Button>
-            <Button fx:id="btnSaveItem" layoutX="462.0" layoutY="10.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#btnSaveItemOnAction" prefWidth="80.0" style="-fx-background-color: #2ecc71;" text="Save" textFill="WHITE">
+            <Button fx:id="btnSave" layoutX="462.0" layoutY="10.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#SaveOnAction" prefWidth="80.0" style="-fx-background-color: #2ecc71;" text="Save" textFill="WHITE">
                <font>
                   <Font name="Calibri Bold" size="14.0" />
                </font>

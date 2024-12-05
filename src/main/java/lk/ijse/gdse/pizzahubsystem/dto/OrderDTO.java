@@ -2,7 +2,7 @@ package lk.ijse.gdse.pizzahubsystem.dto;
 
 import lombok.*;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 @Setter
 @Getter
@@ -12,10 +12,11 @@ import java.sql.Date;
 
 public class OrderDTO {
     private String order_id;
-    private Date order_date;
+    private LocalDate order_date;
     private String status;
     private double total_price;
     private String customer_id;
+
 
 
 }
