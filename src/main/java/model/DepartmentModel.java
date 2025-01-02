@@ -11,7 +11,7 @@ public class DepartmentModel {
 
     public static boolean save(DepartmentDTO dto) throws SQLException {
         return CrudUtil.execute(
-                "INSERT INTO department (department_id, department_name, manager_name, num_employees, description) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO department (department_id, department_name, manager_name, number_of_employees, description) VALUES (?, ?, ?, ?, ?)",
                 dto.getDepartment_id(),
                 dto.getDepartment_name(),
                 dto.getManager_name(),
@@ -40,16 +40,17 @@ public class DepartmentModel {
                     rst.getString("department_id"),
                     rst.getString("department_name"),
                     rst.getString("manager_name"),
-                    rst.getInt("num_employees"),
+                    rst.getInt("number_of_employees"),
                     rst.getString("description")
             ));
+            System.out.println(departmentList.size());
         }
         return departmentList;
     }
 
     public static boolean updateDepartment(DepartmentDTO departmentDTO) throws SQLException {
         return CrudUtil.execute(
-                "UPDATE department SET department_name=?, manager_name=?, num_employees=?, description=? WHERE department_id=?",
+                "UPDATE department SET department_name=?, manager_name=?, number_of_employees=?, description=? WHERE department_id=?",
                 departmentDTO.getDepartment_name(),
                 departmentDTO.getManager_name(),
                 departmentDTO.getNumber_of_employees(),
@@ -70,7 +71,7 @@ public class DepartmentModel {
                     rst.getString("department_id"),
                     rst.getString("department_name"),
                     rst.getString("manager_name"),
-                    rst.getInt("num_employees"),
+                    rst.getInt("number_of_employees"),
                     rst.getString("description")
             );
         }

@@ -5,8 +5,8 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import lk.ijse.gdse.pizzahubsystem.dto.ManageDTO;
@@ -15,6 +15,7 @@ import model.ManageModel;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ManageController {
 
@@ -60,7 +61,7 @@ public class ManageController {
     @FXML private TextField txtSupplierName;
     @FXML private TextField txtSupplierContactName;
 
-    @FXML private TableView<ManageDTO> tblManage;
+    @FXML private TableView<ManageTM> tblManage;
     @FXML private TableColumn<ManageDTO, String> colManageId;
     @FXML private TableColumn<ManageDTO, String> colInventoryId;
     @FXML private TableColumn<ManageDTO, String> colOrderId;
@@ -81,27 +82,35 @@ public class ManageController {
     }
 
     @FXML
-    public void initialize() {
-        manageIdCol.setCellValueFactory(new PropertyValueFactory<>("manageId"));
-        inventoryIdCol.setCellValueFactory(new PropertyValueFactory<>("inventoryId"));
-        supplierIdCol.setCellValueFactory(new PropertyValueFactory<>("supplierId"));
-        orderIdCol.setCellValueFactory(new PropertyValueFactory<>("orderId"));
+    public void initialize() throws SQLException {
+        manageIdCol.setCellValueFactory(new PropertyValueFactory<>("manage_id"));
+        inventoryIdCol.setCellValueFactory(new PropertyValueFactory<>("inventory_id"));
+        supplierIdCol.setCellValueFactory(new PropertyValueFactory<>("supplier_id"));
+        orderIdCol.setCellValueFactory(new PropertyValueFactory<>("order_id"));
         quantityCol.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-        supplierNameCol.setCellValueFactory(new PropertyValueFactory<>("supplierName"));
-        supplierContactNameCol.setCellValueFactory(new PropertyValueFactory<>("supplierContactName"));
+        supplierNameCol.setCellValueFactory(new PropertyValueFactory<>("supplier_name"));
+        supplierContactNameCol.setCellValueFactory(new PropertyValueFactory<>("supplier_contact_name"));
 
         loadManageRecords();
     }
 
-    private void loadManageRecords() {
-        try {
-            ArrayList<ManageDTO> manageList = manageModel.getAllManageRecords();
-            ObservableList<ManageDTO> manageObservableList = FXCollections.observableArrayList(manageList);
-            tblManage.setItems(manageObservableList);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to load manage records", AlertType.ERROR);
+    private void loadManageRecords() throws SQLException {
+        ObservableList<ManageTM> manageTMS = FXCollections.observableArrayList();
+        List<ManageDTO> sList = manageModel.getAllManageRecords();
+        for (ManageDTO manageDTO : sList) {
+            ManageTM manageTM = new ManageTM(
+                    manageDTO.getManageId(),
+                    manageDTO.getInventoryId(),
+                    manageDTO.getSupplierId(),
+                    manageDTO.getOrderId(),
+                    manageDTO.getQuantity(),
+                    manageDTO.getSupplierName(),
+                    manageDTO.getSupplierContactName()
+            );
+            System.out.println(manageTM);
+            manageTMS.add(manageTM);
         }
+        tblManage.setItems(manageTMS);
     }
 
     @FXML

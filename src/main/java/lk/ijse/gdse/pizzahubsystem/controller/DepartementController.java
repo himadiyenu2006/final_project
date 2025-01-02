@@ -23,15 +23,13 @@ import java.util.regex.Pattern;
 
 public class DepartementController implements Initializable {
 
-    public TableView departmentTableView;
-
     public TableColumn deptdescriptionColumn;
 
     @FXML
     private ImageView imageview;
 
     @FXML
-    private TableView<DepartmentTM> tblDepartment;
+    private TableView<DepartmentTM> departmentTableView;
 
     @FXML
     private TableColumn<DepartmentTM, String> deptNameColumn, managerNameColumn;
@@ -57,17 +55,6 @@ public class DepartementController implements Initializable {
     public DepartementController() throws IOException {
     }
 
-//    @Override
-//    public void initialize(URL url, ResourceBundle resourceBundle) {
-//       /* assert deptDescriptionColumn != null : "fx:id=\"deptDescriptionColumn\" was not injected: check your FXML file.";
-//        deptDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
-//        initializeTable();
-//        try {
-//            refreshPage();
-//        } catch (SQLException e) {
-//            showAlert("Error", "Failed to load department data: " + e.getMessage());
-//        }*/
-//    }
 
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -84,8 +71,9 @@ public class DepartementController implements Initializable {
 
 
     public void initialize() throws SQLException {
-        initialize(null, null);
+        //initialize(null, null);
         loadTableData();
+        refreshPage();
 
     }
 
@@ -96,10 +84,12 @@ public class DepartementController implements Initializable {
     }
 
     private void loadTableData() throws SQLException {
+        System.out.println("click to");
         ArrayList<DepartmentDTO> departmentDTOS = departmentModel.getAllDepartments();
         ObservableList<DepartmentTM> departmentTMS = FXCollections.observableArrayList();
 
         for (DepartmentDTO dto : departmentDTOS) {
+            System.out.println(dto);
             departmentTMS.add(new DepartmentTM(
                     dto.getDepartment_id(),
                     dto.getDepartment_name(),
@@ -108,7 +98,7 @@ public class DepartementController implements Initializable {
                     dto.getDescription()
             ));
         }
-        tblDepartment.setItems(departmentTMS);
+        departmentTableView.setItems(departmentTMS);
     }
 
     private void loadNextDepartmentId() throws SQLException {
@@ -194,6 +184,7 @@ public class DepartementController implements Initializable {
     }
 
     public void saveOnAction(ActionEvent actionEvent) {
+        System.out.println("click");
         if (validateAllFields()) {
             try {
                 DepartmentDTO departmentDTO = new DepartmentDTO(
@@ -216,30 +207,7 @@ public class DepartementController implements Initializable {
         }
     }
 
-//    public void deleteOnAction(ActionEvent actionEvent) {
-//        if (departmentIdField.getText().isEmpty()) {
-//            showAlert("Validation Error", "Please enter a Department ID to delete.");
-//            return;
-//        }
-//
-//        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION,
-//                "Are you sure you want to delete this department?", ButtonType.YES, ButtonType.NO);
-//        confirmationAlert.setTitle("Delete Confirmation");
-//        confirmationAlert.showAndWait();
-//
-//        if (confirmationAlert.getResult() == ButtonType.YES) {
-//            try {
-//                if (departmentModel.delete(departmentIdField.getText())) {
-//                    showAlert("Success", "Department deleted successfully.");
-//                    refreshPage();
-//                } else {
-//                    showAlert("Error", "No department found with the given ID.");
-//                }
-//            } catch (SQLException e) {
-//                showAlert("Error", "Database error: " + e.getMessage());
-//            }
-//        }
-//    }
+
 
     public void deleteOnAction(ActionEvent actionEvent) throws SQLException {
         String departmentIdFieldText = departmentIdField.getText();

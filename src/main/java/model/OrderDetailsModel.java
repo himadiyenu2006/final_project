@@ -36,7 +36,8 @@ public class OrderDetailsModel {
     }
 
     public ArrayList<OrderDetailsDTO> getAllOrderDetails() throws SQLException {
-        ResultSet rst = Util.CrudUtil.execute("select * from order_details");
+
+        ResultSet rst = Util.CrudUtil.execute("select * from orderdetails");
 
         ArrayList<OrderDetailsDTO> orderDetailsList = new ArrayList<>();
 
@@ -49,6 +50,7 @@ public class OrderDetailsModel {
                     rst.getDouble(5)
 
             );
+            System.out.println(orderDetailsDTO);
             orderDetailsList.add(orderDetailsDTO);
         }
         return orderDetailsList;

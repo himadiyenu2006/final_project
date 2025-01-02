@@ -9,28 +9,30 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import lk.ijse.gdse.pizzahubsystem.dto.ProductDTO;
 import lk.ijse.gdse.pizzahubsystem.dto.tm.ProductTM;
 import model.ProductModel;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ProductController {
 
-    public TableView tblProducts;
+    public TableView <ProductTM> tblProducts;
 
-    public TableColumn colProductId;
+    public TableColumn <?,?> colProductId;
 
-    public TableColumn colName;
+    public TableColumn <?,?>colName;
 
-    public TableColumn colCategory;
+    public TableColumn <?,?>colCategory;
 
-    public TableColumn colInventoryCount;
+    public TableColumn <?,?>colInventoryCount;
 
-    public TableColumn colDescription;
+    public TableColumn <?,?>colDescription;
 
-    public TableColumn colPrice;
+    public TableColumn <?,?>colPrice;
     @FXML
     private TextField txtProductId;
 
@@ -104,7 +106,30 @@ public class ProductController {
                 validateCategory(category) &&
                 validatePrice(price);
     }
+    @FXML
+    public void initialize() throws SQLException {
+            setCellValue();
+            loadTableData();
 
+    }
+
+    private void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+
+    private void setCellValue() {
+        colProductId.setCellValueFactory(new PropertyValueFactory<>("product_id"));
+        colName.setCellValueFactory(new PropertyValueFactory<>("product_name"));
+        colPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+        colDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
+        colCategory.setCellValueFactory(new PropertyValueFactory<>("category"));
+        colInventoryCount.setCellValueFactory(new PropertyValueFactory<>("inventory_count"));
+    }
     private void showErrorMessage(String message) {
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle("Error");
@@ -198,4 +223,21 @@ public class ProductController {
 
         System.out.println("Add to Cart button clicked!");
     }
+
+    public String getNextProductId() throws SQLException {
+        ResultSet rst = Util.CrudUtil.execute("SELECT product_id FROM product ORDER BY product_id DESC LIMIT 1");
+
+        if (rst.next()) {
+            String lastId = rst.getString(1);
+
+            String substring = lastId.substring(1);
+            int lastIdNumber = Integer.parseInt(substring);
+
+            int newIdIndex = lastIdNumber + 1;
+            return String.format("P%03d", newIdIndex);
+        }
+
+        return "P001";
+    }
+
 }

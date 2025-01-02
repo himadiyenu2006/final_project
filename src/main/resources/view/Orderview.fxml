@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -90,6 +91,7 @@
                                     <TextField fx:id="txtcustomerId1" />
                                  </children>
                               </HBox>
+                              <DatePicker fx:id="datetxt" />
                            </children>
                            <VBox.margin>
                               <Insets bottom="10.0" />
@@ -112,13 +114,9 @@
                                     <Font name="Calibri" size="14.0" />
                                  </font>
                               </Label>
-                              <Label fx:id="lblItemPrice" prefWidth="150.0" text="0.00" textFill="#f46430">
-                                 <font>
-                                    <Font name="Calibri" size="14.0" />
-                                 </font>
-                              </Label>
+                              <TextField fx:id="txttotalprice" />
                               <Label prefHeight="18.0" prefWidth="69.0" text="Status" textFill="#ff0404" />
-                              <TextField fx:id="txtStatus" />
+                              <TextField fx:id="txtcustomerId2" />
                            </children>
                         </HBox>
                      </children>

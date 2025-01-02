@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import lk.ijse.gdse.pizzahubsystem.db.DBConnection;
@@ -27,7 +28,7 @@ public class DeliveryController {
     public TextField deliveryaddressField;
     public TextField deliverydateField;
     public TextField deliveryorderIdfeild;
-    public TableView tbldelivery;
+    public TableView <DeliveryTM>tbldelivery;
     @FXML
     private TextField deliveryIdField;
     @FXML
@@ -59,13 +60,17 @@ public class DeliveryController {
 
     @FXML
     public void initialize() throws SQLException {
-        if (tblDelivery != null) {
             loadDeliveryData();
-        } else {
-            showAlert("Error", "TableView is not initialized!", Alert.AlertType.ERROR);
-        }
+            setCellValue();
     }
+    private void setCellValue() {
+        colDeliveryId.setCellValueFactory(new PropertyValueFactory<>("delivery_id"));
+        colOrderId.setCellValueFactory(new PropertyValueFactory<>("order_id"));
+        colDeliveryDate.setCellValueFactory(new PropertyValueFactory<>("delivery_Date"));
+        colDeliveryAddress.setCellValueFactory(new PropertyValueFactory<>("delivery_Address"));
+        colDeliveryStatus.setCellValueFactory(new PropertyValueFactory<>("delivery_status"));
 
+    }
 
     private boolean validateInputs() {
         try {
@@ -122,6 +127,7 @@ public class DeliveryController {
         ArrayList<DeliveryDTO> deliveryq = DeliveryModel.getAllDelivery();
         ObservableList<DeliveryTM> deliveryTMS = FXCollections.observableArrayList();
         for (DeliveryDTO delivery : deliveryq) {
+            System.out.println(delivery);
             deliveryTMS.add(new DeliveryTM(
                     delivery.getDelivery_id(),
                     delivery.getOrder_id(),
@@ -131,7 +137,7 @@ public class DeliveryController {
                     delivery.getEmployee_id()
             ));
         }
-        tblDelivery.setItems(deliveryTMS);
+        tbldelivery.setItems(deliveryTMS);
     }
 
     @FXML

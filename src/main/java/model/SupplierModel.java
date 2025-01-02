@@ -26,7 +26,7 @@ public class SupplierModel {
 
     public boolean saveSupplier(SupplierDTO supplierDTO) throws SQLException {
         return Util.CrudUtil.execute(
-                "insert into supplier(supplier_id, Supplier_name,contact_name, contact_number, address) values (?,?,?,?,?)",
+                "insert into supplier(supplier_id, supplier_name,contact_name, contact_number, address) values (?,?,?,?,?)",
                 supplierDTO.getSupplier_id(),
                 supplierDTO.getSupplier_name(),
                 supplierDTO.getContact_name(),
@@ -49,6 +49,7 @@ public class SupplierModel {
                     rst.getString(4),
                     rst.getString(5)
             );
+            System.out.println(supplierDTO);
             supplierDTOS.add(supplierDTO);
         }
         return supplierDTOS;

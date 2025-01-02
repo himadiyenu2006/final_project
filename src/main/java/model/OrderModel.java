@@ -23,8 +23,9 @@ public class OrderModel {
 
 
     public static boolean saveOrder(OrderDTO orderDTO) throws SQLException {
+        System.out.println(orderDTO);
         return Util.CrudUtil.execute(
-                "insert into orders(order_id, customer_id, order_date, total_amount, status) values (?,?,?,?,?)",
+                "insert into orders(order_id, customer_id, order_date, total_price, status) values (?,?,?,?,?)",
                 orderDTO.getOrder_id(),
                 orderDTO.getOrder_date(),
                 orderDTO.getStatus(),
@@ -34,7 +35,7 @@ public class OrderModel {
     }
 
 
-    public ArrayList<OrderDTO> getAllOrders() throws SQLException {
+    public static ArrayList<OrderDTO> getAllOrders() throws SQLException {
         ResultSet rst = Util.CrudUtil.execute("select * from orders");
 
         ArrayList<OrderDTO> orderDTOS = new ArrayList<>();
@@ -42,9 +43,9 @@ public class OrderModel {
         while (rst.next()) {
             OrderDTO orderDTO = new OrderDTO(
                     rst.getString(1),
-                    rst.getDate(2).toLocalDate(),
+                    rst.getString(2),
                     rst.getString(3),
-                    rst.getDouble(4),
+                    rst.getString(4),
                     rst.getString(5)
             );
             orderDTOS.add(orderDTO);
@@ -59,9 +60,9 @@ public class OrderModel {
         if (rst.next()) {
             return new OrderDTO(
                     rst.getString(1),
-                    rst.getDate(2).toLocalDate(),
+                    rst.getString(2),
                     rst.getString(3),
-                    rst.getDouble(4),
+                    rst.getString(4),
                     rst.getString(5)
             );
         }

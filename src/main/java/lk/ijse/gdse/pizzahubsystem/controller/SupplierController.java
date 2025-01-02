@@ -6,25 +6,27 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import lk.ijse.gdse.pizzahubsystem.dto.SupplierDTO;
 import lk.ijse.gdse.pizzahubsystem.dto.tm.SupplierTM;
 import model.SupplierModel;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class SupplierController {
 
-    public TableColumn colAdress;
+    public TableColumn<?,?> colAdress;
 
-    public TableColumn colContactNumber;
+    public TableColumn<?,?> colContactNumber;
 
-    public TableColumn colContactName;
+    public TableColumn<?,?> colContactName;
 
-    public TableColumn colName;
+    public TableColumn <?,?>colName;
 
-    public TableColumn colSupplierID;
+    public TableColumn<?,?> colSupplierID;
 
-    public TableView tblsupplier;
+    public TableView<SupplierTM> tblsupplier;
 
     public Button btnERefresh;
 
@@ -47,19 +49,14 @@ public class SupplierController {
     public Label lblUserId;
 
     public Label supplierId;
+    public TextField txtsupplierid;
 
     @FXML
     private TextField txtSupplierId;
-    @FXML
-    private TextField txtSupplierName;
+
     @FXML
     private TextField txtContactName;
-    @FXML
-    private TextField txtContactNumber;
-    @FXML
-    private TextField txtAddress;
-    @FXML
-    private TableView<SupplierTM> tblSupplier;
+
 
     @FXML
     private Button btnSave;
@@ -73,17 +70,28 @@ public class SupplierController {
     @FXML
     public void initialize() {
         try {
+            setCellValue();
             loadSupplierTableData();
         } catch (SQLException e) {
             showError("Error", "Failed to load supplier data.");
         }
     }
 
+    private void setCellValue() {
+        colSupplierID.setCellValueFactory(new PropertyValueFactory<>("supplier_id"));
+        colAdress.setCellValueFactory(new PropertyValueFactory<>("adress"));
+        colContactNumber.setCellValueFactory(new PropertyValueFactory<>("contact_number"));
+        colContactName.setCellValueFactory(new PropertyValueFactory<>("contact_name"));
+        colName.setCellValueFactory(new PropertyValueFactory<>("supplier_name"));
+
+    }
+
     private void loadSupplierTableData() throws SQLException {
-        ObservableList<SupplierDTO> suppliers = FXCollections.observableArrayList(supplierModel.getAllSuppliers());
+       // ObservableList<SupplierDTO> suppliers = FXCollections.observableArrayList(supplierModel.getAllSuppliers());
 
         ObservableList<SupplierTM> supplierTMs = FXCollections.observableArrayList();
-        for (SupplierDTO supplierDTO : suppliers) {
+        List<SupplierDTO> sList = supplierModel.getAllSuppliers();
+        for (SupplierDTO supplierDTO : sList) {
             SupplierTM supplierTM = new SupplierTM(
                     supplierDTO.getSupplier_id(),
                     supplierDTO.getSupplier_name(),
@@ -101,10 +109,10 @@ public class SupplierController {
     public void saveSupplier() {
         try {
             String supplierId = supplierModel.getNextSupplierId();
-            String supplierName = txtSupplierName.getText();
+            String supplierName = txtName.getText();
             String contactName = txtContactName.getText();
-            String contactNumber = txtContactNumber.getText();
-            String address = txtAddress.getText();
+            String contactNumber = txtcontactNumber.getText();
+            String address = txtaddress.getText();
 
             SupplierDTO supplierDTO = new SupplierDTO(supplierId, supplierName, contactName, contactNumber, address);
 
@@ -125,17 +133,17 @@ public class SupplierController {
     @FXML
     public void updateSupplier() {
         try {
-            SupplierTM selectedSupplier = tblSupplier.getSelectionModel().getSelectedItem();
+            SupplierTM selectedSupplier = tblsupplier.getSelectionModel().getSelectedItem();
 
             if (selectedSupplier == null) {
                 showError("Error", "Please select a supplier to update.");
                 return;
             }
 
-            String supplierName = txtSupplierName.getText();
+            String supplierName = txtName.getText();
             String contactName = txtContactName.getText();
-            String contactNumber = txtContactNumber.getText();
-            String address = txtAddress.getText();
+            String contactNumber = txtcontactNumber.getText();
+            String address = txtaddress.getText();
 
 
             selectedSupplier.setSupplier_name(supplierName);
@@ -161,7 +169,7 @@ public class SupplierController {
     @FXML
     public void deleteSupplier() {
         try {
-            SupplierTM selectedSupplier = tblSupplier.getSelectionModel().getSelectedItem();
+            SupplierTM selectedSupplier = tblsupplier.getSelectionModel().getSelectedItem();
 
             if (selectedSupplier == null) {
                 showError("Error", "Please select a supplier to delete.");
@@ -203,25 +211,25 @@ public class SupplierController {
 
     @FXML
     public void onTableSelect() {
-        SupplierTM selectedSupplier = tblSupplier.getSelectionModel().getSelectedItem();
+        SupplierTM selectedSupplier = tblsupplier.getSelectionModel().getSelectedItem();
         if (selectedSupplier != null) {
             txtSupplierId.setText(selectedSupplier.getSupplier_id());
-            txtSupplierName.setText(selectedSupplier.getSupplier_name());
+            txtName.setText(selectedSupplier.getSupplier_name());
             txtContactName.setText(selectedSupplier.getContact_name());
-            txtContactNumber.setText(selectedSupplier.getContact_number());
-            txtAddress.setText(selectedSupplier.getAddress());
+            txtcontactNumber.setText(selectedSupplier.getContact_number());
+            txtaddress.setText(selectedSupplier.getAddress());
         }
     }
 
     @FXML
     public void saveOnAction(ActionEvent actionEvent) {
         try {
-            String supplierId = supplierModel.getNextSupplierId();
-            String supplierName = txtSupplierName.getText();
+            String supplierId = txtsupplierid.getText() ;
+            String supplierName = txtName.getText();
             String contactName = txtContactName.getText();
-            String contactNumber = txtContactNumber.getText();
-            String address = txtAddress.getText();
-
+            String contactNumber = txtcontactNumber.getText();
+            String address = txtaddress.getText();
+            System.out.println(supplierId);
             SupplierDTO supplierDTO = new SupplierDTO(supplierId, supplierName, contactName, contactNumber, address);
 
             boolean isSaved = supplierModel.saveSupplier(supplierDTO);
@@ -245,17 +253,17 @@ public class SupplierController {
     @FXML
     public void updateOnAction(ActionEvent actionEvent) {
         try {
-            SupplierTM selectedSupplier = tblSupplier.getSelectionModel().getSelectedItem();
+            SupplierTM selectedSupplier = tblsupplier.getSelectionModel().getSelectedItem();
 
             if (selectedSupplier == null) {
                 showError("Error", "Please select a supplier to update.");
                 return;
             }
 
-            String supplierName = txtSupplierName.getText();
+            String supplierName = txtName.getText();
             String contactName = txtContactName.getText();
-            String contactNumber = txtContactNumber.getText();
-            String address = txtAddress.getText();
+            String contactNumber = txtcontactNumber.getText();
+            String address = txtaddress.getText();
 
             selectedSupplier.setSupplier_name(supplierName);
             selectedSupplier.setContact_name(contactName);
@@ -279,7 +287,7 @@ public class SupplierController {
     @FXML
     public void deleteOnAction(ActionEvent actionEvent) {
         try {
-            SupplierTM selectedSupplier = tblSupplier.getSelectionModel().getSelectedItem();
+            SupplierTM selectedSupplier = tblsupplier.getSelectionModel().getSelectedItem();
 
             if (selectedSupplier == null) {
                 showError("Error", "Please select a supplier to delete.");

@@ -37,7 +37,6 @@ public class ItemController {
 
     public ImageView imageItem;
 
-    public Label txtId;
 
     public TextField txtName;
 
@@ -52,6 +51,8 @@ public class ItemController {
     public Button btndelete;
 
     public Button btnreset;
+
+    public TextField txtid;
 
     @FXML
     private TableView<ItemTM> itemTable;
@@ -249,7 +250,7 @@ public class ItemController {
     }
     @FXML
     public void DeleteOnAction(ActionEvent actionEvent) {
-        String itemId = txtId.getText().trim();
+        String itemId = txtid.getText().trim();
 
         if (itemId.isEmpty()) {
             showAlert("Error", "Item ID cannot be empty", Alert.AlertType.ERROR);
@@ -272,7 +273,7 @@ public class ItemController {
 
     @FXML
     public void UpdateOnAction(ActionEvent actionEvent) {
-        String itemId = txtId.getText().trim();
+        String itemId = txtid.getText().trim();
         String name = txtName.getText().trim();
         String quantityText = txtQuantity.getText().trim();
         String priceText = txtPrice.getText().trim();
@@ -304,7 +305,7 @@ public class ItemController {
 
     @FXML
     public void SaveOnAction(ActionEvent actionEvent) {
-        String itemId = txtId.getText().trim();
+        String itemId = txtid.getText().trim();
         String name = txtName.getText().trim();
         String quantityText = txtQuantity.getText().trim();
         String priceText = txtPrice.getText().trim();
@@ -335,7 +336,7 @@ public class ItemController {
     }
     @FXML
     public void reduceQuantityOnAction(ActionEvent actionEvent) {
-        String itemId = txtId.getText().trim();
+        String itemId = txtid.getText().trim();
         String quantityText = txtQuantity.getText().trim();
 
         if (itemId.isEmpty() || quantityText.isEmpty()) {

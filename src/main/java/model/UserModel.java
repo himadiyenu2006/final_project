@@ -64,7 +64,7 @@ public class UserModel {
         return Util.CrudUtil.execute("DELETE FROM user WHERE user_id=?", userId);
     }
 
-    public ArrayList<Integer> getAllUserIds() throws SQLException {
+    public ArrayList<UserDTO> getAllUserIds() throws SQLException {
         ResultSet rst = Util.CrudUtil.execute("SELECT user_id FROM user");
 
         ArrayList<Integer> userIds = new ArrayList<>();
@@ -73,7 +73,7 @@ public class UserModel {
             userIds.add(rst.getInt(1));
         }
 
-        return userIds;
+        return getAllUserIds();
     }
 
     public UserDTO findById(int selectedUserId) throws SQLException {

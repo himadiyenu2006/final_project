@@ -148,7 +148,7 @@
                </children>
             </HBox>
 
-            <TableView fx:id="tblUser" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+            <TableView fx:id="tbluser" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                <columns>
                   <TableColumn fx:id="colUserId" prefWidth="150.0" text="User Id" />
                   <TableColumn fx:id="colName" prefWidth="150.0" text="Name" />

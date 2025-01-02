@@ -18,9 +18,8 @@ import java.util.ArrayList;
 
 public class OrderDetailsController {
 
-    public TableView tblOrderdetails;
 
-    public TableColumn ColOrderDetailsId;
+    public TableColumn <?,?>ColOrderDetailsId;
 
     public Button btnadd_order_details;
 
@@ -32,10 +31,8 @@ public class OrderDetailsController {
 
     public TextField txtOrderDetailsId;
     @FXML
-    private TableView<OrderDetailsTM> tblOrderDetails;
+    private TableView<OrderDetailsTM> tblOrderdetails;
 
-    @FXML
-    private TableColumn<OrderDetailsTM, String> colOrderDetailId;
 
     @FXML
     private TableColumn<OrderDetailsTM, String> colOrderId;
@@ -77,17 +74,21 @@ public class OrderDetailsController {
 
     @FXML
     public void initialize() {
+        try {
+            setCellValue();
+            loadOrderDetailsTableData();
+        } catch (SQLException e) {
+            showError("Error", "Failed to load orderdetails data.");
+        }
+    }
+
+    private void setCellValue() {
         ColOrderDetailsId.setCellValueFactory(new PropertyValueFactory<>("order_details_id"));
         colOrderId.setCellValueFactory(new PropertyValueFactory<>("order_id"));
         colProductId.setCellValueFactory(new PropertyValueFactory<>("product_id"));
         colQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         colPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
 
-        try {
-            loadOrderDetailsTableData();
-        } catch (SQLException e) {
-            showError("Error", "Failed to load order details.");
-        }
     }
 
     private void loadOrderDetailsTableData() throws SQLException {
@@ -95,6 +96,7 @@ public class OrderDetailsController {
         ObservableList<OrderDetailsTM> orderDetailsTMList = FXCollections.observableArrayList();
 
         for (OrderDetailsDTO orderDetailsDTO : orderDetailsList) {
+            System.out.println(orderDetailsDTO);
             orderDetailsTMList.add(new OrderDetailsTM(
                     orderDetailsDTO.getOrderDetail_id(),
                     orderDetailsDTO.getOrder_id(),
@@ -104,11 +106,12 @@ public class OrderDetailsController {
             ));
         }
 
-        tblOrderDetails.setItems(orderDetailsTMList);
+        tblOrderdetails.setItems(orderDetailsTMList);
     }
 
     @FXML
     public void saveOrderDetails(ActionEvent event) {
+        System.out.println("click");
         try {
             String orderDetailId = txtOrderDetailsId.getText();
             String orderId = txtOrderId.getText();
@@ -117,7 +120,7 @@ public class OrderDetailsController {
             double price = Double.parseDouble(txtPrice.getText());
 
             OrderDetailsDTO orderDetailsDTO = new OrderDetailsDTO(orderDetailId, orderId, productId, quantity, price);
-
+            System.out.println(orderDetailsDTO);
             boolean isSaved = orderDetailsModel.saveOrderDetails(orderDetailsDTO);
 
             if (isSaved) {
@@ -135,7 +138,7 @@ public class OrderDetailsController {
     @FXML
     public void updateOrderDetails(ActionEvent event) {
         try {
-            OrderDetailsTM selectedOrder = tblOrderDetails.getSelectionModel().getSelectedItem();
+            OrderDetailsTM selectedOrder = tblOrderdetails.getSelectionModel().getSelectedItem();
 
             if (selectedOrder == null) {
                 showError("Error", "Please select an order to update.");
@@ -167,7 +170,7 @@ public class OrderDetailsController {
     @FXML
     public void deleteOrderDetails(ActionEvent event) {
         try {
-            OrderDetailsTM selectedOrder = tblOrderDetails.getSelectionModel().getSelectedItem();
+            OrderDetailsTM selectedOrder = tblOrderdetails.getSelectionModel().getSelectedItem();
 
             if (selectedOrder == null) {
                 showError("Error", "Please select an order to delete.");
@@ -216,7 +219,7 @@ public class OrderDetailsController {
 
     @FXML
     public void onTableSelect() {
-        OrderDetailsTM selectedOrder = tblOrderDetails.getSelectionModel().getSelectedItem();
+        OrderDetailsTM selectedOrder = tblOrderdetails.getSelectionModel().getSelectedItem();
         if (selectedOrder != null) {
             txtOrderDetailsId.setText(selectedOrder.getOrder_details_id());
             txtOrderId.setText(selectedOrder.getOrder_id());
@@ -228,6 +231,7 @@ public class OrderDetailsController {
 
     @FXML
     public void handleAddOrderDetail(ActionEvent actionEvent) {
+        System.out.println("click");
         if (!validateOrderDetails()) {
             try {
                 String orderDetailId = txtOrderDetailsId.getText();
@@ -237,7 +241,7 @@ public class OrderDetailsController {
                 double price = Double.parseDouble(txtPrice.getText());
 
                 OrderDetailsDTO orderDetailsDTO = new OrderDetailsDTO(orderDetailId, orderId, productId, quantity, price);
-
+                System.out.println(orderDetailsDTO);
                 boolean isSaved = orderDetailsModel.saveOrderDetails(orderDetailsDTO);
 
                 if (isSaved) {
@@ -258,7 +262,7 @@ public class OrderDetailsController {
     public void handleUpdateOrderDetail(ActionEvent actionEvent) {
         if (!validateOrderDetails()) {
             try {
-                OrderDetailsTM selectedOrder = tblOrderDetails.getSelectionModel().getSelectedItem();
+                OrderDetailsTM selectedOrder = tblOrderdetails.getSelectionModel().getSelectedItem();
 
                 if (selectedOrder == null) {
                     showError("Error", "Please select an order detail to update.");

@@ -1,15 +1,20 @@
 package lk.ijse.gdse.pizzahubsystem.controller;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.TableView;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import lk.ijse.gdse.pizzahubsystem.dto.OrderDTO;
+import lk.ijse.gdse.pizzahubsystem.dto.tm.OrderTM;
 import model.OrderModel;
-import javafx.scene.control.TableView;
+
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.List;
+
 public class OrderController {
 
     public Label txtorderdate;
@@ -23,6 +28,9 @@ public class OrderController {
     public TableColumn colcustomerId;
     public Button btnrest;
     public Button btnplaceorder;
+    public TextField txttotalprice;
+    public TextField txtcustomerId2;
+    public DatePicker datetxt;
     @FXML
     private Button btnPlaceOrder;
 
@@ -56,8 +64,6 @@ public class OrderController {
     @FXML
     private TextField txtStatus;
 
-    @FXML
-    private TextField txtCustomerId;
 
     @FXML
     private TextField txtTotalPrice;
@@ -66,10 +72,10 @@ public class OrderController {
     void btnPlaceOrderOnAction(ActionEvent event) {
         try {
             String orderId = lblOrderId.getText();
-            String customerId = txtCustomerId.getText();
-            LocalDate orderDate = dpOrderDate.getValue();
-            double totalPrice = Double.parseDouble(txtTotalPrice.getText());
-            String status = txtStatus.getText();
+            String customerId = txtcustomerId.getText();
+            String orderDate = String.valueOf(datetxt.getValue());
+            String totalPrice = String.valueOf(Double.parseDouble(txttotalprice.getText()));
+            String status = txtcustomerId2.getText();
             
             if (orderId.isEmpty() || customerId.isEmpty() || orderDate == null || status.isEmpty()) {
                 showAlert("Validation Error", "Please fill in all fields correctly.", Alert.AlertType.WARNING);
@@ -101,12 +107,12 @@ public class OrderController {
     }
 
     @FXML
-    public void initialize() {
+    public void initialize() throws SQLException {
         colorderId.setCellValueFactory(new PropertyValueFactory<>("order_id"));
-        colcustomerId.setCellValueFactory(new PropertyValueFactory<>("customer_id"));
         colorderDate.setCellValueFactory(new PropertyValueFactory<>("order_date"));
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
         colTotal.setCellValueFactory(new PropertyValueFactory<>("total_price"));
+        colcustomerId.setCellValueFactory(new PropertyValueFactory<>("customer_id"));
         
         loadOrders();
         
@@ -117,23 +123,27 @@ public class OrderController {
         lblOrderId.setText("");
         txtcustomerId.clear();
         dpOrderDate.setValue(null);
-        txtTotalPrice.clear();
-        txtStatus.clear();
+        txttotalprice.clear();
+        txtcustomerId2.clear();
     }
 
-    private void loadOrders() {
-        try {
-            ArrayList<OrderDTO> orderDTOS = new OrderModel().getAllOrders();
+    private void loadOrders() throws SQLException {
 
-            tblorder.getItems().clear();
+            ObservableList<OrderTM> orderTMS = FXCollections.observableArrayList();
+            List<OrderDTO> sList = OrderModel.getAllOrders();
+            for (OrderDTO orderDTO : sList) {
+                OrderTM orderTM = new OrderTM(
+                        orderDTO.getOrder_id(),
+                        orderDTO.getOrder_date(),
+                        orderDTO.getStatus(),
+                        orderDTO.getTotal_price(),
+                        orderDTO.getCustomer_id()
+                );
+                orderTMS.add(orderTM);
+            }
 
-           // tblOrder.getItems().addAll(orderDTOS);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to load orders.", Alert.AlertType.ERROR);
+            tblorder.setItems(orderTMS);
         }
-    }
-
 
     private void generateOrderId() {
         try {

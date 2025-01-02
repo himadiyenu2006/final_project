@@ -56,19 +56,6 @@ public class ProductModel {
     }
 
 
-    public boolean saveProduct(ProductDTO productDTO) throws SQLException {
-        return Util.CrudUtil.execute(
-                "insert into product(product_id, Product_name, price ,description , category, inventory_count) values (?,?,?,?,?,?)",
-                productDTO.getProduct_id(),
-                productDTO.getProduct_name(),
-                productDTO.getPrice(),
-                productDTO.getDescription(),
-                productDTO.getCategory(),
-                productDTO.getInventory_count()
-        );
-    }
-
-
     public static ArrayList<ProductDTO> getAllProducts() throws SQLException {
         ResultSet rst = Util.CrudUtil.execute("select * from product");
 
@@ -86,17 +73,6 @@ public class ProductModel {
             productDTOS.add(productDTO);
         }
         return productDTOS;
-    }
-
-
-    public boolean updateProduct(ProductDTO productDTO) throws SQLException {
-        return Util.CrudUtil.execute(
-                "update product set Product_name=?, category=?, price=? where product_id=?",
-                productDTO.getProduct_name(),
-                productDTO.getCategory(),
-                productDTO.getPrice(),
-                productDTO.getProduct_id()
-        );
     }
 
     public ProductDTO findById(String selectedProdId) throws SQLException {

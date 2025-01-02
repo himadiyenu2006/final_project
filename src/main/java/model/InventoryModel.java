@@ -1,10 +1,7 @@
 package model;
 
-import lk.ijse.gdse.pizzahubsystem.db.DBConnection;
 import lk.ijse.gdse.pizzahubsystem.dto.InventoryDTO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -12,7 +9,7 @@ import java.util.ArrayList;
 public class InventoryModel {
 
 
-    private DBConnection DatabaseConnection;
+    //private DBConnection DatabaseConnection;
 
     public String getNextInventoryId() throws SQLException {
         ResultSet rst = Util.CrudUtil.execute("SELECT inventory_id FROM inventory ORDER BY inventory_id DESC LIMIT 1");
@@ -26,6 +23,7 @@ public class InventoryModel {
     }
 
     public boolean saveInventory(InventoryDTO inventoryDTO) throws SQLException {
+        System.out.println(inventoryDTO+"model");
         return Util.CrudUtil.execute(
                 "INSERT INTO inventory(inventory_id, product_id, supplier_id, quantity, last_updated) VALUES (?, ?, ?, ?,?)",
                 inventoryDTO.getInventory_id(),
@@ -51,6 +49,7 @@ public class InventoryModel {
                     rst.getString(5)
 
                     );
+            System.out.println(inventoryDTO);
             inventoryItems.add(inventoryDTO);
         }
         return inventoryItems;
@@ -88,31 +87,44 @@ public class InventoryModel {
         return null;
     }
 
-    public InventoryDTO getInventoryById(String inventoryId) {
-        String query = "SELECT * FROM inventory WHERE inventory_id = ?";
+    public InventoryDTO getInventoryById(String inventoryId) throws SQLException {
+        ResultSet rst = Util.CrudUtil.execute("SELECT * FROM inventory WHERE inventory_id=?", inventoryId);
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-            pstmt.setString(1, inventoryId);
-
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                return new InventoryDTO(
-                        rs.getString("inventory_id"),
-                        rs.getString("product_id"),
-                        rs.getString("supplier_id"),
-                        rs.getInt("quantity"),
-                        rs.getString("last_updated")
-                );
-            } else {
-                return null;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+        if (rst.next()) {
+            return new InventoryDTO(
+                    rst.getString(1),
+                    rst.getString(2),
+                    rst.getString(3),
+                    rst.getInt(4),
+                    rst.getString(5)
+            );
         }
+        return null;
     }
+//        String query = "SELECT * FROM inventory WHERE inventory_id = ?";
+//
+//        try (Connection conn = DatabaseConnection.getConnection();
+//             PreparedStatement pstmt = conn.prepareStatement(query)) {
+//
+//            pstmt.setString(1, inventoryId);
+//
+//            ResultSet rs = pstmt.executeQuery();
+//
+//            if (rs.next()) {
+//                return new InventoryDTO(
+//                        rs.getString("inventory_id"),
+//                        rs.getString("product_id"),
+//                        rs.getString("supplier_id"),
+//                        rs.getInt("quantity"),
+//                        rs.getString("last_updated")
+//                );
+//            } else {
+//                return null;
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
 
 }
