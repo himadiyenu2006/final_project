@@ -11,4 +11,5 @@ module lk.ijse.gdse.pizzahubsystem {
     opens lk.ijse.gdse.pizzahubsystem.controller to javafx.fxml;
     exports lk.ijse.gdse.pizzahubsystem;
     exports lk.ijse.gdse.pizzahubsystem.dto.tm;
+    opens lk.ijse.gdse.pizzahubsystem.DAOImpl to javafx.fxml;
 }

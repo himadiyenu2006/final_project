@@ -8,8 +8,6 @@ import java.util.ArrayList;
 
 public class PaymentModel {
 
-    // Removed the unused `CrudUtil` declaration
-
     public String getNextPaymentId() throws SQLException {
         ResultSet rst = Util.CrudUtil.execute("SELECT payment_id FROM payment ORDER BY payment_id DESC LIMIT 1");
 

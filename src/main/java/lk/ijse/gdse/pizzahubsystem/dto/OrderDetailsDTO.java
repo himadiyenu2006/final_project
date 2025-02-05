@@ -14,4 +14,17 @@ public class OrderDetailsDTO {
     private int quantity;
     private double price;
 
+
+    public Object getOrder_date() {
+        return orderDetail_id;
+
+    }
+
+    public Object getCustomer_id() {
+        return order_id;
+    }
+
+    public Object getTotal_price() {
+        return price;
+    }
 }
